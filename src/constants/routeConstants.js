@@ -1,7 +1,7 @@
 // Production URL
-// export const BASE_URL = 'https://shelton-tool-hire-backend.onrender.com';
+export const BASE_URL = 'https://shelton-tool-hire-backend.onrender.com';
 // Development URL
-export const BASE_URL = 'http://localhost:6868';
+// export const BASE_URL = 'http://localhost:6868';
 
 
 export const LOGIN_URL = '/customer/login'
