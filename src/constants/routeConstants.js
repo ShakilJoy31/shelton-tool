@@ -3,7 +3,6 @@ export const BASE_URL = 'https://shelton-tool-hire-backend.onrender.com';
 // Development URL
 // export const BASE_URL = 'http://localhost:6868';
 
-
 export const LOGIN_URL = '/customer/login'
 export const REGISTER_URL = '/customer/register'
 export const SENDOTP_URL = '/customer/send-otp'
