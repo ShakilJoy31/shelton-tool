@@ -20,27 +20,12 @@ import {
   UserStore,
 } from '../../userStore';
 
-const Page = ({ individualProduct }) => {;
+const Page = ({ individualProduct, setIndividualProduct }) => {
+    ;
     const router = useRouter();
     const pathname = usePathname();
     const { user, setUser } = UserStore.useContainer();
     const { products, setProducts } = ProductsStore.useContainer();
-    // setTimeout(function () {
-    //     if (warning) {
-    //         document.getElementById('alReadyExistsOnTheCartModal')?.close();
-    //         setWarning(false);
-    //     }
-    // }, 1800);
-
-    // const loadMoreProducts = async (page) => {
-    //     if (!loading) {
-    //         setLoading(true);
-    //         const nextPageProducts = await CustomerAPI.handleGettingProducts(page, dataForDynamicComponent[0]);
-    //         setProducts([...products, ...nextPageProducts]);
-    //         setLoading(false);
-    //     }
-    // };
-
 
     // const handleScroll = () => {
     //     if (
@@ -62,22 +47,31 @@ const Page = ({ individualProduct }) => {;
         setSelectedCommentToReply(targetComment);
     }
 
+    function getCurrentDateTime() {
+        const currentDate = new Date();
+        return currentDate.toLocaleString();
+    }
+
     const handlePostReviewForIndividualComment = () => {
+        const reviewTime = getCurrentDateTime();
         const reviewData = {
             reviewerName: reviewerName,
             reviewerComment: reviewerComment,
-            repliedCommentId: selectedCommentToReply?.userId
+            repliedCommentId: selectedCommentToReply?.userId,
+            reviewTime: reviewTime
         }
         CustomerAPI.addReviewToComment(individualProduct?._id, reviewData).then(res => {
-            console.log(res);
+            const previousReview = individualProduct?.comments.find(review => review.userId === selectedCommentToReply.userId).reviews;
+            previousReview.push(reviewData)
+            setIndividualProduct({ ...individualProduct })
+            setIsReviewFields(false);
         })
-        console.log(individualProduct);
     }
     return (
         <div>
             <div className={`${DashboardCSS.commentsContainer}`}>
                 {individualProduct.comments.map((comment, index) => (
-                    <div className={`${DashboardCSS.comment}`} key={index}>
+                    <div style={{borderBottom: `${index + 1 === individualProduct?.comments?.length ? '' : '1px solid crimson'}`}} className={`${DashboardCSS.comment}`} key={index}>
                         <div>
                             <div className='flex justify-between items-center'>
                                 <p className={`${DashboardCSS.user}`}>{comment.commentAndRating?.name}</p>
@@ -91,52 +85,66 @@ const Page = ({ individualProduct }) => {;
 
                                 <span onClick={() => handleTargetCommentToReview(comment)} className={`${IndividualCSS.plusCommnet}`}><BiSolidCommentAdd size={25}></BiSolidCommentAdd></span>
                             </div>
+
                             {
-                            isReviewFields ? (comment?.userId === selectedCommentToReply?.userId ? <div className={`flex justify-between items-center pl-2 md:pl-3 lg:pl-4 w-full my-3`}>
-                            {
-                                (reviewerName || reviewerComment ) ? <span className="loading loading-dots loading-lg"></span> : ''
+                                isReviewFields ? (comment?.userId === selectedCommentToReply?.userId ? <div className={`flex justify-between items-center pl-2 md:pl-3 lg:pl-4 w-full my-3`}>
+                                    {
+                                        (reviewerName || reviewerComment) ? <span className="loading loading-dots loading-lg"></span> : ''
+                                    }
+
+                                    <div>
+                                        <input
+                                            onChange={(e) => setReviewerName(e.target.value)}
+                                            style={{
+                                                borderRadius: verificationFieldsRound,
+                                                background: 'white',
+                                            }}
+                                            placeholder="Please type your name here"
+                                            className={`lg:w-[450px] md:w-[350px] w-[250px] pl-1 h-[35px] focus:outline-none border-0 text-black`}
+                                            type="text"
+                                            name=""
+                                            id=""
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <input
+                                            onChange={(e) => setReviewerComment(e.target.value)}
+                                            style={{
+                                                borderRadius: verificationFieldsRound,
+                                                background: 'white',
+                                            }}
+                                            placeholder="Please type your comment here"
+                                            className={`lg:w-[450px] md:w-[350px] w-[250px] h-[35px] focus:outline-none border-0 pl-1 text-black`}
+                                            type="text"
+                                            name=""
+                                            id=""
+                                        />
+                                    </div>
+
+                                    <span onClick={handlePostReviewForIndividualComment} className={`${IndividualCSS.plusCommnet}`}><BiSend size={25}></BiSend></span>
+
+                                </div> : '') : ''
+
                             }
-                            
-                            <div>
-                                <input
-                                onChange={(e)=>setReviewerName(e.target.value)}
-                                    style={{
-                                        borderRadius: verificationFieldsRound,
-                                        background: 'white',
-                                    }}
-                                    placeholder="Please type your name here"
-                                    className={`lg:w-[450px] md:w-[350px] w-[250px] pl-1 h-[35px] focus:outline-none border-0 text-black`}
-                                    type="text"
-                                    name=""
-                                    id=""
-                                />
-                            </div>
-                            
-                            <div>
-                                <input
-                                onChange={(e)=>setReviewerComment(e.target.value)}
-                                    style={{
-                                        borderRadius: verificationFieldsRound,
-                                        background: 'white',
-                                    }}
-                                    placeholder="Please type your comment here"
-                                    className={`lg:w-[450px] md:w-[350px] w-[250px] h-[35px] focus:outline-none border-0 pl-1 text-black`}
-                                    type="text"
-                                    name=""
-                                    id=""
-                                />
-                            </div>
 
-                            <span onClick={handlePostReviewForIndividualComment} className={`${IndividualCSS.plusCommnet}`}><BiSend size={25}></BiSend></span>
-                            
-                    </div> : '') : ''
-                            
-                        }
+                            {/* The reviews for the individual comment */}
+                            <div className='pl-3 md:pl-4 lg:pl-5'>
+                                {
+                                    comment?.reviews?.map((review, index) => <div key={index} style={{borderBottom: `${index + 1 === comment?.reviews?.length ? '' : '1px solid #888'}`}} className='mb-1'>
+                                        <div className='flex justify-between items-center'>
+                                            <p className={`${DashboardCSS.user}`}>{review?.reviewerName}</p>
+
+                                            <p className={`${DashboardCSS.date}`}>{review?.reviewTime}</p>
+                                        </div>
+
+                                        <div className='flex justify-between items-center'>
+                                            <p className={`${DashboardCSS.commentText}`}>{review.reviewerComment}</p>
+                                        </div>
+                                    </div>)
+                                }
+                            </div>
                         </div>
-
-                        {/* The reviews for the comment */}
-                        
-
                     </div>
                 ))}
             </div>

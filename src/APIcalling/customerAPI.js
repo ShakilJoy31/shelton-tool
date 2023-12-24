@@ -85,7 +85,6 @@ const addComment = async (toolId, comment) => {
     baseURL: BASE_URL
   });
   try {
-    console.log(toolId, comment);
     const response = await axiosInstance.post(`/add-comment/${toolId}`, comment);
     return response.data;
   } catch (error) {

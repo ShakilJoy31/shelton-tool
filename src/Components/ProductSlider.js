@@ -52,6 +52,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
 
     const [message, setMessage] = useState('');
     const [selectedPackage, setSelectedPackage] = useState('');
+    const [totalHiringCost, setTotalHiringCost] = useState(); 
     const handleHireTool = (tool, getPriceForHiring) => {
         const hiringCost = { ...individualProduct };
         setSelectedPackage(tool);
@@ -106,10 +107,14 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
     const [supportServices, setSupportServices] = useState(0);
     const [afterSales, setAfterSales] = useState(0);
     const [miscellaneous, setMiscellaneous] = useState(0);
-
     // States for the comment
     const [name, setName] = useState('');
     const [comment, setComment] = useState('');
+    function getCurrentDateTime() {
+        const currentDate = new Date(); 
+        return currentDate.toLocaleString();
+      }
+
     const HandlePostingCommentOnTool = () =>{
         const userComment = {
             name: name,
@@ -122,10 +127,23 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
         }
         CustomerAPI.addComment(individualProduct._id, userComment).then(res => {
             if(res){
+                const commentTime = getCurrentDateTime();
+                if (res?.comments) {
+                    setIndividualProduct(prevProduct => {
+                      const updatedComments = [...prevProduct.comments, { commentAndRating: userComment, timeOfComment: commentTime}];
+                      return { ...prevProduct, comments: updatedComments };
+                    });
+                  } else {
+                    setIndividualProduct(prevProduct => ({
+                      ...prevProduct,
+                      comments: [{ commentAndRating: userComment, timeOfComment: commentTime }]
+                    }));
+                  }                  
                 document.getElementById('readyToCommentModal').close();
             }
         });
     }
+    console.log(individualProduct);
     return (
         <div data-aos="zoom-in-up">
             <div style={{ marginTop: '25px' }} className='text-white'>
@@ -166,6 +184,8 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                                     <div className={`${IndividualCSS.timeInputContainer} w-full`}>
                                         <input
                                             onChange={(e) => {
+                                                const total = individualProduct.hourlyHire * e.target.value;
+                                                setTotalHiringCost(total);
                                                 setHiringHour(e.target.value);
                                             }}
                                             type="number"
@@ -184,6 +204,8 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                                     <div className={`${IndividualCSS.timeInputContainer} w-full`}>
                                         <input
                                             onChange={(e) => {
+                                                const total = individualProduct.dailyHire * e.target.value;
+                                                setTotalHiringCost(total);
                                                 setHiringDay(e.target.value);
                                             }}
                                             type="number"
@@ -256,7 +278,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                             <p>Cost for Hiring: </p>
                             <div className='ml-4'>
                                 <div className='flex items-center justify-evenly bg-slate-500 text-white hover:cursor-pointer px-[15px]'>
-                                    234556456
+                                    {totalHiringCost}
                                 </div>
                             </div>
                         </div>
@@ -324,9 +346,9 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
 
 
             {
-                individualProduct.comments ? <div className='mb-8'>
-                <CommentsAndReviews individualProduct={individualProduct}></CommentsAndReviews>
-            </div> : 'Be the first one to comment'
+                individualProduct?.comments ? <div className='mb-8'>
+                <CommentsAndReviews individualProduct={individualProduct} setIndividualProduct={setIndividualProduct}></CommentsAndReviews>
+            </div> : <p className='mt-2 flex justify-center'>Be the first one to comment</p>
             }
             
 
