@@ -297,7 +297,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                             <p>Cost for Hiring: </p>
                             <div className='ml-4'>
                                 <div className='flex items-center justify-evenly bg-slate-500 text-white hover:cursor-pointer px-[15px]'>
-                                    {totalHiringCost}
+                                    {totalHiringCost || 'select above'}
                                 </div>
                             </div>
                         </div>
