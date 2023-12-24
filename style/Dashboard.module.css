@@ -312,3 +312,15 @@
   transition-duration: 500ms;
   border: 2px solid crimson;
 }
+
+.loginButton{
+  background: crimson;
+  transition-duration: 320ms;
+  color: white
+}
+
+.loginButton:hover{
+  background: white;
+  transition-duration: 320ms;
+  color:black;
+}

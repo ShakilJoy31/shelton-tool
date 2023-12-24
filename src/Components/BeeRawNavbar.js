@@ -12,12 +12,15 @@ import {
   useRouter,
 } from 'next/navigation';
 import { BiSearch } from 'react-icons/bi';
+import { IoLogOut } from 'react-icons/io5';
 import { LuMenu } from 'react-icons/lu';
 
 import { CustomerAPI } from '@/APIcalling/customerAPI';
 // import { SlMenu } from 'react-icons/si';
 import { verificationFieldsRound } from '@/constants/speceing';
 
+import DashboardCSS from '../../style/Dashboard.module.css';
+import IndividualCSS from '../../style/Individual.module.css';
 import MyServiceCSS from '../../style/MyServiceCSS.module.css';
 import {
   BlurForSafety,
@@ -26,6 +29,8 @@ import {
   UserStore,
 } from '../../userStore';
 import CustomerSidebar from '../Components/CustomerSidebar';
+import SheltonLogin from './SheltonLogin';
+import SheltonSignup from './SheltonSignup';
 
 const Page = () => {
   const router = useRouter();
@@ -38,6 +43,7 @@ const Page = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [pageNumber, setPageNumber] = useState(1);
   const [data, setData] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   useEffect(() => {
     CustomerAPI.handleGettingAllProducts().then(res => {
       setData(res)
@@ -46,6 +52,9 @@ const Page = () => {
     Aos.init({ duration: 500 });
     if (JSON.parse(localStorage.getItem('editable'))) {
       setIsAdmin(true);
+    }
+    if (JSON.parse(localStorage.getItem('user'))) {
+      setIsLoggedIn(true);
     }
   }, [])
   const handleCartFromNavbar = () => {
@@ -163,7 +172,56 @@ const Page = () => {
             </div> : ''
           }
         </div>
+
+
+        {
+          !isLoggedIn ? <div className="lg:flex items-center hidden ml-2 gap-x-2">
+          <button onClick={() => {
+            document.getElementById('loginModal').showModal();
+          }} className={`btn border-0 btn-sm w-full lg:w-[100px] normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Login</button>
+
+          <button onClick={() => {
+            document.getElementById('signupModal').showModal();
+          }} className={`btn border-0 btn-sm w-full lg:w-[100px] normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Sign up</button>
+        </div> : <span onClick={()=>{
+          setIsLoggedIn(false);
+          localStorage.removeItem('user')
+        }} className={`${IndividualCSS.plusCommnet}`}><IoLogOut size={25}></IoLogOut></span>
+        }
+        
+
+
       </div>
+
+
+      {/* The modal for login */}
+      <dialog id="loginModal" className="modal">
+        <div style={{
+          color: 'white',
+          background: 'black',
+          border: '2px solid crimson'
+        }} className="modal-box">
+          <SheltonLogin setIsLoggedIn={setIsLoggedIn}></SheltonLogin>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
+
+
+      {/* The modal for signup */}
+      <dialog id="signupModal" className="modal">
+        <div style={{
+          color: 'white',
+          background: 'black',
+          border: '2px solid crimson'
+        }} className="modal-box">
+          <SheltonSignup setIsLoggedIn={setIsLoggedIn}></SheltonSignup>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
     </div>
   );
 };

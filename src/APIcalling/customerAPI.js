@@ -108,6 +108,33 @@ const addReviewToComment = async (toolId, getReview) => {
 
 
 
+// Authentication for the user. 
+const handleSignin = async (payload) => {
+  const axiosInstance = axios.create({
+    baseURL: BASE_URL
+  });
+  try {
+    const response = await axiosInstance.post('/signup', payload);
+    return response.data;
+  } catch (error) {
+    console.log(error)
+  }
+};
+
+const handleLoggedInUsers = async () => {
+  const axiosInstance = axios.create({
+    baseURL: BASE_URL
+  });
+  try {
+    const response = await axiosInstance.get('/loggedin-users');
+    return response.data;
+  } catch (error) {
+    console.log(error)
+  }
+};
+
+
+
 
 export const CustomerAPI = {
   handleGettingProducts,
@@ -116,5 +143,7 @@ export const CustomerAPI = {
   getCategorizedProductsForCustomer,
   handleGettingAllProducts,
   addComment,
-  addReviewToComment
+  addReviewToComment,
+  handleSignin,
+  handleLoggedInUsers
 }
