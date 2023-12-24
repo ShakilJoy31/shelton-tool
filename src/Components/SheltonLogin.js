@@ -11,6 +11,7 @@ import {
 import { CustomerAPI } from '@/APIcalling/customerAPI';
 
 import DashboardCSS from '../../style/Dashboard.module.css';
+import { CommentPermission } from '../../userStore';
 
 const Page = ({setIsLoggedIn}) => {
     const [email, setEmail] = useState('');
@@ -19,6 +20,7 @@ const Page = ({setIsLoggedIn}) => {
     const [loggedInUser, setLoggedInUser] = useState([]);
     const [loading, setLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+    const { isCommentPermission, setIsCommentPermission } = CommentPermission.useContainer();
 
     useEffect(()=>{
         CustomerAPI.handleLoggedInUsers().then(res => setLoggedInUser(res));
@@ -36,6 +38,8 @@ const Page = ({setIsLoggedIn}) => {
             const checkLocalStorage = JSON.parse(localStorage.getItem('user'));
                 if (!checkLocalStorage) {
                     setIsLoggedIn(true);
+                    setLoading(false);
+                    setIsCommentPermission('You are permitted to comment and review!')
                     localStorage.setItem('user', JSON.stringify(foundDatabaseUser));
                     document.getElementById('loginModal').close();
                 }

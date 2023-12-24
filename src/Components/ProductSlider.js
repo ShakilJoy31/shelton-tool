@@ -19,12 +19,15 @@ import DashboardCSS from '../../style/Dashboard.module.css';
 import MyServiceCSS from '../../style/Dashboard.module.css';
 import IndividualCSS from '../../style/Individual.module.css';
 import {
+  CommentPermission,
+  LoggedInUserStore,
   ProductsStore,
   UserStore,
 } from '../../userStore';
 import Button from './button';
 import CommentsAndReviews from './CommentsAndReviews';
 import Divider from './Divider';
+import SheltonLogin from './SheltonLogin';
 
 const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) => {
     const { user, setUser } = UserStore.useContainer();
@@ -33,11 +36,16 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
     const [previewImage, setPreviewImage] = useState('');
     const [warning, setWarning] = useState(false);
     const [isEditable, setIsEditable] = useState(false);
+    const { isLoggedIn, setIsLoggedIn } = LoggedInUserStore.useContainer();
+    const { isCommentPermission, setIsCommentPermission } = CommentPermission.useContainer();    
     useEffect(() => {
         setPreviewImage(individualProduct?.productPicture[0]);
         if (JSON.parse(localStorage.getItem('editable')) === 'editable') {
             setIsEditable(true);
         }
+        if (JSON.parse(localStorage.getItem('user'))) {
+            setIsLoggedIn(true);
+          }
     }, [])
 
     setTimeout(function () {
@@ -98,9 +106,18 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
     }
 
     const handleUserWantsToComment = () => {
-        document.getElementById('readyToCommentModal').showModal();
+        if(isLoggedIn){
+            document.getElementById('readyToCommentModal').showModal();
+        }else{
+            setIsCommentPermission('Authentication is required!');
+            document.getElementById('loginModal').showModal();
+        }
     }
-
+    setTimeout(function () {
+        if(isCommentPermission){
+            setIsCommentPermission('')
+        }
+    }, 3800);
     // States for the stars
     const [equipmentPerformance, setEquipmentPerformance] = useState(0);
     const [customerService, setCustomerService] = useState(0);
@@ -143,9 +160,11 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
             }
         });
     }
-    console.log(individualProduct);
     return (
         <div data-aos="zoom-in-up">
+            {
+                isCommentPermission && <p className='flex justify-center' style={{padding: '5px', border: '1px solid crimson', background: 'rgba(220, 20, 60, 0.208)', marginTop: '10px'}}>{isCommentPermission}</p>
+            }
             <div style={{ marginTop: '25px' }} className='text-white'>
                 <div className={`${IndividualCSS.container}`}>
                     <div>
@@ -354,7 +373,19 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
 
 
 {/* The modal for taking comment and stars of the mentioned field */}
-            <dialog id="readyToCommentModal" className="modal">
+{
+    !isLoggedIn ? <dialog id="loginModal" className="modal">
+    <div style={{
+      color: 'white',
+      background: 'black',
+      border: '2px solid crimson'
+    }} className="modal-box">
+      <SheltonLogin setIsLoggedIn={setIsLoggedIn}></SheltonLogin>
+    </div>
+    <form method="dialog" className="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog> : <dialog id="readyToCommentModal" className="modal">
                 <div className={`${IndividualCSS.toCommentModal} modal-box`}>
 
                     <span onClick={HandlePostingCommentOnTool} style={{ zIndex: '1' }} className={`${IndividualCSS.postingComment} w-[165px]`}><span className='flex justify-center'>Post</span></span>
@@ -477,6 +508,8 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                     <button>close</button>
                 </form>
             </dialog>
+}
+            
 
 
             {/* The warning modal to delete the product*/}

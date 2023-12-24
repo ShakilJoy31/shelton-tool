@@ -25,6 +25,18 @@ function useCategoryWiseProductStore () {
 }
 export const CategoryWisedProductsStore = createContainer(useCategoryWiseProductStore);
 
+function useLoggedInUserStore () {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    return {isLoggedIn, setIsLoggedIn};
+}
+export const LoggedInUserStore = createContainer(useLoggedInUserStore);
+
+function useCommentPermission () {
+    const [isCommentPermission, setIsCommentPermission] = useState('');
+    return {isCommentPermission, setIsCommentPermission};
+}
+export const CommentPermission = createContainer(useCommentPermission);
+
 
 // This state is decleared for blur.
 function useBlueForSafety () {

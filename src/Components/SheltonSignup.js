@@ -37,6 +37,7 @@ const Page = ({setIsLoggedIn}) => {
         if (!foundDatabaseUser) {
             CustomerAPI.handleSignin(formData).then(res => {
                 setIsLoggedIn(true);
+                setLoading(false);
                 document.getElementById('signupModal').close();
                 localStorage.setItem('user', JSON.stringify(formData));
             })

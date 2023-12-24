@@ -25,6 +25,7 @@ import MyServiceCSS from '../../style/MyServiceCSS.module.css';
 import {
   BlurForSafety,
   CategoryWisedProductsStore,
+  LoggedInUserStore,
   ProductsStore,
   UserStore,
 } from '../../userStore';
@@ -43,7 +44,7 @@ const Page = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [pageNumber, setPageNumber] = useState(1);
   const [data, setData] = useState([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { isLoggedIn, setIsLoggedIn } = LoggedInUserStore.useContainer();
   useEffect(() => {
     CustomerAPI.handleGettingAllProducts().then(res => {
       setData(res)

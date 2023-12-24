@@ -9,6 +9,8 @@ import DashboardCSS from '../../style/Dashboard.module.css';
 import {
   BlurForSafety,
   CategoryWisedProductsStore,
+  CommentPermission,
+  LoggedInUserStore,
   ProductsStore,
   UserStore,
 } from '../../userStore';
@@ -24,6 +26,8 @@ const inter = Inter({ subsets: ['latin'] })
 
 export default function RootLayout({ children }) {
   return (
+    <CommentPermission.Provider>
+    <LoggedInUserStore.Provider>
     <BlurForSafety.Provider>
     <ProductsStore.Provider>
       <CategoryWisedProductsStore.Provider>
@@ -48,5 +52,7 @@ export default function RootLayout({ children }) {
       </CategoryWisedProductsStore.Provider>
     </ProductsStore.Provider>
     </BlurForSafety.Provider>
+    </LoggedInUserStore.Provider>
+    </CommentPermission.Provider>
   )
 }
