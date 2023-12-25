@@ -5,7 +5,6 @@ import React, {
 } from 'react';
 
 import { useRouter } from 'next/navigation';
-import { TbCurrencyTaka } from 'react-icons/tb';
 
 import { AdminAPI } from '@/APIcalling/adminAPI';
 import CustomModal from '@/Components/CustomModal';
@@ -28,15 +27,12 @@ const Page = () => {
             setOrders(onlyArrivedOrders)
         });
     }, [])
-
-    const [totalPrice, setTotalPrice] = useState('');
+    console.log(orders);
     const [seeOrderByAdmin, setSeeOrderByAdmin] = useState(null);
     const [idForTheOrderToDelete, setValue] = useState('');
 
     const handleCheckOrderByAdmin = (getOrder) => {
         document.getElementById('productDetails').showModal();
-        const totalPrice = getOrder?.placedOrderForProduct?.reduce((total, cart) => total + (parseFloat(cart.price) * parseFloat(cart.quantity)), 0);
-        setTotalPrice(totalPrice);
         setSeeOrderByAdmin(getOrder);
         setValue(getOrder);
     }
@@ -81,13 +77,13 @@ const Page = () => {
 
                                     <th className='text-white'><span className='flex justify-center'>Name</span></th>
 
-                                    <th className='text-white'><span className='flex justify-center'>Address</span></th>
-
-                                    <th className='text-white'><span className='flex justify-center'>Phone</span></th>
-
                                     <th className='text-white'><span className='flex justify-center'>Email</span></th>
 
-                                    <th className='text-white'><span className='flex justify-center'>Total</span></th>
+                                    <th className='text-white'><span className='flex justify-center'>Duration</span></th>
+
+                                    <th className='text-white'><span className='flex justify-center'>Cost for hiring</span></th>
+
+                                    <th className='text-white'><span className='flex justify-center'>Ordered time</span></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -97,13 +93,13 @@ const Page = () => {
 
                                         <td> <span className='flex justify-center'>{order.name}</span></td>
 
-                                        <td className=''><span className='flex justify-center'>{order.address}</span></td>
+                                        <td className=''><span className='flex justify-center'>{order.email}</span></td>
 
-                                        <td> <span className='flex justify-center'>{order.phoneNumber}</span></td>
+                                        <td> <span className='flex justify-center'>{order.hiringDuration}</span></td>
 
-                                        <td> <span className='flex justify-center'>{order.email}</span></td>
+                                        <td> <span className='flex justify-center'>{order.hiringCost}</span></td>
 
-                                        <td><span className='flex justify-center items-center'><span>{order?.placedOrderForProduct?.reduce((total, cart) => total + (parseFloat(cart.price) * parseFloat(cart.quantity)), 0)}</span> <span><TbCurrencyTaka color={'white'} size={20}></TbCurrencyTaka></span></span></td>
+                                        <td><span className='flex justify-center items-center'>{order.hiringTime}</span></td>
                                     </tr>)
                                 }
 
@@ -115,43 +111,34 @@ const Page = () => {
 
             <dialog id="productDetails" className="modal">
                 <div style={{
-                    color: 'white',
-                    background: 'purple',
-                    border: '1px solid white'
-                }} className="modal-box">
+                        color: 'white',
+                        background: 'black',
+                        border: '2px solid crimson'
+                    }} className="modal-box">
 
-                    <h1 className='mb-[12px] flex justify-center'>{seeOrderByAdmin?.name} orderd from {seeOrderByAdmin?.address}</h1>
+                    <h1 className='mb-[12px] flex justify-center'>{seeOrderByAdmin?.name} wants to hire {seeOrderByAdmin?.orderedTool?.title}</h1>
 
                     <div className="overflow-x-auto w-full">
                         <table className="table">
                             <thead>
                                 <tr>
-                                    <th className='text-white'><span className='flex justify-center'>SL No.</span></th>
+                                    
                                     <th className='text-white'><span className='flex justify-center'>Image</span></th>
+
                                     <th className='text-white px-20'><span className='flex justify-center'>Name</span></th>
-                                    <th className='text-white'><span className='flex justify-center'>Price</span></th>
-                                    <th className='text-white'><span className='flex justify-center'>Quantity</span></th>
-                                    <th className='text-white'><span className='flex justify-center'>Color</span></th>
+
+                                    <th className='text-white'><span className='flex justify-center'>Category</span></th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {
-                                    seeOrderByAdmin?.placedOrderForProduct?.map((product, index) => <tr key={index}>
+                             <tr>
+                                        <td> <span className='flex justify-center'><img src={seeOrderByAdmin?.orderedTool?.productPicture[0]} alt="Product Image" style={{ borderRadius: '0 8px 0 8px' }} className='w-10 h-10' /></span></td>
 
-                                        <th><span className='flex justify-center'>{index + 1}</span></th>
+                                        <td><span className='flex justify-center'>{seeOrderByAdmin?.orderedTool?.title}</span></td>
 
-                                        <td> <span className='flex justify-center'><img src={product?.productPicture[0]} alt="Product Image" style={{ borderRadius: '0 8px 0 8px' }} className='w-10 h-10' /></span></td>
+                                        <td><span className='flex justify-center'>{seeOrderByAdmin?.orderedTool?.category}</span></td>
 
-                                        <td><span className='flex justify-center'>{product?.title}</span></td>
-
-                                        <td><span className='flex justify-center'>{parseFloat(product?.price) * parseFloat(product?.quantity)}</span></td>
-
-                                        <td><span className='flex justify-center'>{product?.quantity}</span></td>
-
-                                        <td><span className='flex justify-center'>{product.color}</span></td>
-
-                                    </tr>)
-                                }
+                                    </tr>
                             </tbody>
                         </table>
                     </div>

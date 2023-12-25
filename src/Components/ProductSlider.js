@@ -37,7 +37,8 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
     const [warning, setWarning] = useState(false);
     const [isEditable, setIsEditable] = useState(false);
     const { isLoggedIn, setIsLoggedIn } = LoggedInUserStore.useContainer();
-    const { isCommentPermission, setIsCommentPermission } = CommentPermission.useContainer();    
+    const { isCommentPermission, setIsCommentPermission } = CommentPermission.useContainer();
+    const [authenticatedUser, setAuthenticatedUser] = useState([]);
     useEffect(() => {
         setPreviewImage(individualProduct?.productPicture[0]);
         if (JSON.parse(localStorage.getItem('editable')) === 'editable') {
@@ -45,7 +46,8 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
         }
         if (JSON.parse(localStorage.getItem('user'))) {
             setIsLoggedIn(true);
-          }
+            setAuthenticatedUser(JSON.parse(localStorage.getItem('user')));
+        }
     }, [])
 
     setTimeout(function () {
@@ -60,7 +62,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
 
     const [message, setMessage] = useState('');
     const [selectedPackage, setSelectedPackage] = useState('');
-    const [totalHiringCost, setTotalHiringCost] = useState(); 
+    const [totalHiringCost, setTotalHiringCost] = useState();
     const handleHireTool = (tool, getPriceForHiring) => {
         const hiringCost = { ...individualProduct };
         setSelectedPackage(tool);
@@ -94,27 +96,16 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
         }
     };
 
-    const handleProcceedToHire = () => {
-        if (hiringHour) {
-
-        } else if (hiringDay) {
-
-        } else if (hiringCustom) {
-
-        }
-        console.log(individualProduct);
-    }
-
     const handleUserWantsToComment = () => {
-        if(isLoggedIn){
+        if (isLoggedIn) {
             document.getElementById('readyToCommentModal').showModal();
-        }else{
+        } else {
             setIsCommentPermission('Authentication is required!');
             document.getElementById('loginModal').showModal();
         }
     }
     setTimeout(function () {
-        if(isCommentPermission){
+        if (isCommentPermission) {
             setIsCommentPermission('')
         }
     }, 3800);
@@ -128,11 +119,11 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
     const [name, setName] = useState('');
     const [comment, setComment] = useState('');
     function getCurrentDateTime() {
-        const currentDate = new Date(); 
+        const currentDate = new Date();
         return currentDate.toLocaleString();
-      }
+    }
 
-    const HandlePostingCommentOnTool = () =>{
+    const HandlePostingCommentOnTool = () => {
         const userComment = {
             name: name,
             comment: comment,
@@ -143,27 +134,64 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
             miscellaneous: miscellaneous
         }
         CustomerAPI.addComment(individualProduct._id, userComment).then(res => {
-            if(res){
+            if (res) {
                 const commentTime = getCurrentDateTime();
                 if (res?.comments) {
                     setIndividualProduct(prevProduct => {
-                      const updatedComments = [...prevProduct.comments, { commentAndRating: userComment, timeOfComment: commentTime}];
-                      return { ...prevProduct, comments: updatedComments };
+                        const updatedComments = [...prevProduct.comments, { commentAndRating: userComment, timeOfComment: commentTime }];
+                        return { ...prevProduct, comments: updatedComments };
                     });
-                  } else {
+                } else {
                     setIndividualProduct(prevProduct => ({
-                      ...prevProduct,
-                      comments: [{ commentAndRating: userComment, timeOfComment: commentTime }]
+                        ...prevProduct,
+                        comments: [{ commentAndRating: userComment, timeOfComment: commentTime }]
                     }));
-                  }                  
+                }
                 document.getElementById('readyToCommentModal').close();
+            }
+        });
+    }
+
+    const handleProcceedToHire = () => {
+        let userDataForOrderTool = {}
+        if (hiringHour) {
+            userDataForOrderTool = {
+                name: authenticatedUser.name,
+                email: authenticatedUser.email,
+                orderedTool: individualProduct,
+                hiringCost: totalHiringCost,
+                hiringDuration: hiringHour + ' Hour',
+                hiringTime: getCurrentDateTime(),
+            }
+        } else if (hiringDay) {
+            userDataForOrderTool = {
+                name: authenticatedUser.name,
+                email: authenticatedUser.email,
+                orderedTool: individualProduct,
+                hiringCost: totalHiringCost,
+                hiringDuration: hiringDay + ' Day',
+                hiringTime: getCurrentDateTime(),
+            }
+        } else {
+            userDataForOrderTool = {
+                name: authenticatedUser.name,
+                email: authenticatedUser.email,
+                orderedTool: individualProduct,
+                hiringCost: totalHiringCost,
+                hiringDuration: hiringCustom,
+                hiringTime: getCurrentDateTime(),
+            }
+        }
+        CustomerAPI.userInformationForPlacOrderProduct(userDataForOrderTool).then(res => {
+            if (res.acknowledged === true) {
+                document.getElementById('placeOrderModal')?.showModal();
             }
         });
     }
     return (
         <div data-aos="zoom-in-up">
             {
-                isCommentPermission && <p className='flex justify-center' style={{padding: '5px', border: '1px solid crimson', background: 'rgba(220, 20, 60, 0.208)', marginTop: '10px'}}>{isCommentPermission}</p>
+                isCommentPermission && <p className='flex justify-center' style={{ padding: '5px', border: '1px solid crimson', background: 'rgba(220, 20, 60, 0.208)', marginTop: '10px' }}>{isCommentPermission}</p>
             }
             <div style={{ marginTop: '25px' }} className='text-white'>
                 <div className={`${IndividualCSS.container}`}>
@@ -205,7 +233,9 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                                             onChange={(e) => {
                                                 const total = individualProduct.hourlyHire * e.target.value;
                                                 setTotalHiringCost(total);
+                                                setHiringDay('');
                                                 setHiringHour(e.target.value);
+                                                setHiringCustom('');
                                             }}
                                             type="number"
                                             placeholder='Type hours'
@@ -225,7 +255,9 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                                             onChange={(e) => {
                                                 const total = individualProduct.dailyHire * e.target.value;
                                                 setTotalHiringCost(total);
+                                                setHiringHour('');
                                                 setHiringDay(e.target.value);
+                                                setHiringCustom('');
                                             }}
                                             type="number"
                                             placeholder='Type hours'
@@ -246,6 +278,8 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                                         <input
                                             onChange={(e) => {
                                                 setHiringCustom(e.target.value);
+                                                setHiringHour('');
+                                                setHiringDay('');
                                             }}
                                             type="time"
                                             id="timeInput"
@@ -366,150 +400,150 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
 
             {
                 individualProduct?.comments ? <div className='mb-8'>
-                <CommentsAndReviews individualProduct={individualProduct} setIndividualProduct={setIndividualProduct}></CommentsAndReviews>
-            </div> : <p className='mt-2 flex justify-center'>Be the first one to comment</p>
+                    <CommentsAndReviews individualProduct={individualProduct} setIndividualProduct={setIndividualProduct}></CommentsAndReviews>
+                </div> : <p className='mt-2 flex justify-center'>Be the first one to comment</p>
             }
-            
 
 
-{/* The modal for taking comment and stars of the mentioned field */}
-{
-    !isLoggedIn ? <dialog id="loginModal" className="modal">
-    <div style={{
-      color: 'white',
-      background: 'black',
-      border: '2px solid crimson'
-    }} className="modal-box">
-      <SheltonLogin setIsLoggedIn={setIsLoggedIn}></SheltonLogin>
-    </div>
-    <form method="dialog" className="modal-backdrop">
-      <button>close</button>
-    </form>
-  </dialog> : <dialog id="readyToCommentModal" className="modal">
-                <div className={`${IndividualCSS.toCommentModal} modal-box`}>
 
-                    <span onClick={HandlePostingCommentOnTool} style={{ zIndex: '1' }} className={`${IndividualCSS.postingComment} w-[165px]`}><span className='flex justify-center'>Post</span></span>
-
-                    <div>
-                        <h1 className='mb-1'>Your Name</h1>
-                        <div className={`flex items-center ${MyServiceCSS.tableRoomInput}`}>
-                            <input
-                            onChange={(e) => setName(e.target.value)}
-                                style={{
-                                    borderRadius: verificationFieldsRound,
-                                    background: 'white',
-                                }}
-                                placeholder="Please type your name here"
-                                className={`w-full pl-1 h-[35px] focus:outline-none border-0 text-black`}
-                                type="text"
-                                name=""
-                                id=""
-                            />
-                        </div>
+            {/* The modal for taking comment and stars of the mentioned field */}
+            {
+                !isLoggedIn ? <dialog id="loginModal" className="modal">
+                    <div style={{
+                        color: 'white',
+                        background: 'black',
+                        border: '2px solid crimson'
+                    }} className="modal-box">
+                        <SheltonLogin setIsLoggedIn={setIsLoggedIn}></SheltonLogin>
                     </div>
+                    <form method="dialog" className="modal-backdrop">
+                        <button>close</button>
+                    </form>
+                </dialog> : <dialog id="readyToCommentModal" className="modal">
+                    <div className={`${IndividualCSS.toCommentModal} modal-box`}>
 
-                    <div className='mb-3'><Divider color='slategrey'></Divider></div>
+                        <span onClick={HandlePostingCommentOnTool} style={{ zIndex: '1' }} className={`${IndividualCSS.postingComment} w-[165px]`}><span className='flex justify-center'>Post</span></span>
 
-                    <div>
-                        <h1 className='mb-1'>Leave your comment</h1>
-                        <div className={`flex items-center ${MyServiceCSS.tableRoomInput}`}>
-                            <textarea
-                            onChange={(e) => setComment(e.target.value)}
-                                style={{
-                                    borderRadius: verificationFieldsRound,
-                                    background: 'white',
-                                }}
-                                placeholder="Please type your comment here"
-                                className={`w-full h-[55px] focus:outline-none border-0 pl-1 text-black`}
-                                type="text"
-                                name=""
-                                id=""
-                            />
+                        <div>
+                            <h1 className='mb-1'>Your Name</h1>
+                            <div className={`flex items-center ${MyServiceCSS.tableRoomInput}`}>
+                                <input
+                                    onChange={(e) => setName(e.target.value)}
+                                    style={{
+                                        borderRadius: verificationFieldsRound,
+                                        background: 'white',
+                                    }}
+                                    placeholder="Please type your name here"
+                                    className={`w-full pl-1 h-[35px] focus:outline-none border-0 text-black`}
+                                    type="text"
+                                    name=""
+                                    id=""
+                                />
+                            </div>
                         </div>
-                    </div>
 
-                    <div className='mb-3'><Divider color='crimson'></Divider></div>
+                        <div className='mb-3'><Divider color='slategrey'></Divider></div>
 
-                    <div>
-                        <h3 className="flex justify-center text-white text-xl">How was the performance if this equipment?</h3>
-                        <div className='flex justify-evenly items-center'>
-                            {[1, 2, 3, 4, 5].map((value) => (
-                                <span
-                                    key={value}
-                                    onClick={() => setEquipmentPerformance(value)}>
-                                    <IoStar size={25} color={`${value <= equipmentPerformance ? 'crimson' : 'white'}`}></IoStar>
-                                </span>
-                            ))}
+                        <div>
+                            <h1 className='mb-1'>Leave your comment</h1>
+                            <div className={`flex items-center ${MyServiceCSS.tableRoomInput}`}>
+                                <textarea
+                                    onChange={(e) => setComment(e.target.value)}
+                                    style={{
+                                        borderRadius: verificationFieldsRound,
+                                        background: 'white',
+                                    }}
+                                    placeholder="Please type your comment here"
+                                    className={`w-full h-[55px] focus:outline-none border-0 pl-1 text-black`}
+                                    type="text"
+                                    name=""
+                                    id=""
+                                />
+                            </div>
                         </div>
-                    </div>
 
-                    <div className='mb-3'><Divider color='slategrey'></Divider></div>
+                        <div className='mb-3'><Divider color='crimson'></Divider></div>
 
-                    <div>
-                        <h3 className="flex justify-center text-white text-xl">How was the customer service?</h3>
-                        <div className='flex justify-evenly items-center'>
-                            {[1, 2, 3, 4, 5].map((value) => (
-                                <span
-                                    key={value}
-                                    onClick={() => setCustomerService(value)}>
-                                    <IoStar size={25} color={`${value <= customerService ? 'crimson' : 'white'}`}></IoStar>
-                                </span>
-                            ))}
+                        <div>
+                            <h3 className="flex justify-center text-white text-xl">How was the performance if this equipment?</h3>
+                            <div className='flex justify-evenly items-center'>
+                                {[1, 2, 3, 4, 5].map((value) => (
+                                    <span
+                                        key={value}
+                                        onClick={() => setEquipmentPerformance(value)}>
+                                        <IoStar size={25} color={`${value <= equipmentPerformance ? 'crimson' : 'white'}`}></IoStar>
+                                    </span>
+                                ))}
+                            </div>
                         </div>
-                    </div>
 
-                    <div className='mb-3'><Divider color='slategrey'></Divider></div>
+                        <div className='mb-3'><Divider color='slategrey'></Divider></div>
 
-                    <div>
-                        <h3 className="flex justify-center text-white text-xl">Are you satiesfied with the support services?</h3>
-                        <div className='flex justify-evenly items-center'>
-                            {[1, 2, 3, 4, 5].map((value) => (
-                                <span
-                                    key={value}
-                                    onClick={() => setSupportServices(value)}>
-                                    <IoStar size={25} color={`${value <= supportServices ? 'crimson' : 'white'}`}></IoStar>
-                                </span>
-                            ))}
+                        <div>
+                            <h3 className="flex justify-center text-white text-xl">How was the customer service?</h3>
+                            <div className='flex justify-evenly items-center'>
+                                {[1, 2, 3, 4, 5].map((value) => (
+                                    <span
+                                        key={value}
+                                        onClick={() => setCustomerService(value)}>
+                                        <IoStar size={25} color={`${value <= customerService ? 'crimson' : 'white'}`}></IoStar>
+                                    </span>
+                                ))}
+                            </div>
                         </div>
-                    </div>
 
-                    <div className='mb-3'><Divider color='slategrey'></Divider></div>
+                        <div className='mb-3'><Divider color='slategrey'></Divider></div>
 
-                    <div>
-                        <h3 className="flex justify-center text-white text-xl">How was the support after sales?</h3>
-                        <div className='flex justify-evenly items-center'>
-                            {[1, 2, 3, 4, 5].map((value) => (
-                                <span
-                                    key={value}
-                                    onClick={() => setAfterSales(value)}>
-                                    <IoStar size={25} color={`${value <= afterSales ? 'crimson' : 'white'}`}></IoStar>
-                                </span>
-                            ))}
+                        <div>
+                            <h3 className="flex justify-center text-white text-xl">Are you satiesfied with the support services?</h3>
+                            <div className='flex justify-evenly items-center'>
+                                {[1, 2, 3, 4, 5].map((value) => (
+                                    <span
+                                        key={value}
+                                        onClick={() => setSupportServices(value)}>
+                                        <IoStar size={25} color={`${value <= supportServices ? 'crimson' : 'white'}`}></IoStar>
+                                    </span>
+                                ))}
+                            </div>
                         </div>
-                    </div>
 
-                    <div className='mb-3'><Divider color='slategrey'></Divider></div>
+                        <div className='mb-3'><Divider color='slategrey'></Divider></div>
 
-                    <div>
-                        <h3 className="flex justify-center text-white text-xl">Are you satiesfieds with miscellaneous support?</h3>
-                        <div className='flex justify-evenly items-center'>
-                            {[1, 2, 3, 4, 5].map((value) => (
-                                <span
-                                    key={value}
-                                    onClick={() => setMiscellaneous(value)}>
-                                    <IoStar size={25} color={`${value <= miscellaneous ? 'crimson' : 'white'}`}></IoStar>
-                                </span>
-                            ))}
+                        <div>
+                            <h3 className="flex justify-center text-white text-xl">How was the support after sales?</h3>
+                            <div className='flex justify-evenly items-center'>
+                                {[1, 2, 3, 4, 5].map((value) => (
+                                    <span
+                                        key={value}
+                                        onClick={() => setAfterSales(value)}>
+                                        <IoStar size={25} color={`${value <= afterSales ? 'crimson' : 'white'}`}></IoStar>
+                                    </span>
+                                ))}
+                            </div>
                         </div>
-                    </div>
 
-                </div>
-                <form method="dialog" className="modal-backdrop">
-                    <button>close</button>
-                </form>
-            </dialog>
-}
-            
+                        <div className='mb-3'><Divider color='slategrey'></Divider></div>
+
+                        <div>
+                            <h3 className="flex justify-center text-white text-xl">Are you satiesfieds with miscellaneous support?</h3>
+                            <div className='flex justify-evenly items-center'>
+                                {[1, 2, 3, 4, 5].map((value) => (
+                                    <span
+                                        key={value}
+                                        onClick={() => setMiscellaneous(value)}>
+                                        <IoStar size={25} color={`${value <= miscellaneous ? 'crimson' : 'white'}`}></IoStar>
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+
+                    </div>
+                    <form method="dialog" className="modal-backdrop">
+                        <button>close</button>
+                    </form>
+                </dialog>
+            }
+
 
 
             {/* The warning modal to delete the product*/}
@@ -535,6 +569,22 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
 
                     </div>
 
+                </div>
+                <form method="dialog" className="modal-backdrop">
+                    <button>close</button>
+                </form>
+            </dialog>
+
+
+            {/* Modal for successfully hired a tool */}
+            <dialog id="placeOrderModal" className="modal">
+                <div style={{
+                        color: 'white',
+                        background: 'black',
+                        border: '2px solid crimson'
+                    }} className="modal-box">
+                        Your hiring request is receieved. Please wait for the confirmation! <br></br> <br></br>
+                        Thank you so fuch for being with <span className='underline'>Shelton-tool</span>
                 </div>
                 <form method="dialog" className="modal-backdrop">
                     <button>close</button>
