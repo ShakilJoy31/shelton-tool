@@ -16,6 +16,7 @@ import { verificationFieldsRound } from '@/constants/speceing';
 import DashboardCSS from '../../style/Dashboard.module.css';
 import IndividualCSS from '../../style/Individual.module.css';
 import {
+  AuthenticUser,
   ProductsStore,
   UserStore,
 } from '../../userStore';
@@ -38,9 +39,8 @@ const Page = ({ individualProduct, setIndividualProduct }) => {
     // };
     const [isReviewFields, setIsReviewFields] = useState(false);
     const [selectedCommentToReply, setSelectedCommentToReply] = useState(false);
-    const [reviewerName, setReviewerName] = useState('');
     const [reviewerComment, setReviewerComment] = useState('');
-
+    const { authenticatedUser, setAuthenticatedUser } = AuthenticUser.useContainer();
     const handleTargetCommentToReview = (getComment) => {
         setIsReviewFields(true);
         const targetComment = individualProduct.comments.find(comment => comment?.userId === getComment?.userId);
@@ -51,11 +51,10 @@ const Page = ({ individualProduct, setIndividualProduct }) => {
         const currentDate = new Date();
         return currentDate.toLocaleString();
     }
-
     const handlePostReviewForIndividualComment = () => {
         const reviewTime = getCurrentDateTime();
         const reviewData = {
-            reviewerName: reviewerName,
+            reviewerName: authenticatedUser.name,
             reviewerComment: reviewerComment,
             repliedCommentId: selectedCommentToReply?.userId,
             reviewTime: reviewTime
@@ -88,38 +87,26 @@ const Page = ({ individualProduct, setIndividualProduct }) => {
 
                             {
                                 isReviewFields ? (comment?.userId === selectedCommentToReply?.userId ? <div className={`flex justify-between items-center pl-2 md:pl-3 lg:pl-4 w-full my-3`}>
-                                    {
-                                        (reviewerName || reviewerComment) ? <span className="loading loading-dots loading-lg"></span> : ''
-                                    }
 
-                                    <div>
-                                        <input
-                                            onChange={(e) => setReviewerName(e.target.value)}
-                                            style={{
+                                    <div style={{
                                                 borderRadius: verificationFieldsRound,
                                                 background: 'white',
-                                            }}
-                                            placeholder="Please type your name here"
-                                            className={`lg:w-[450px] md:w-[350px] w-[250px] pl-1 h-[35px] focus:outline-none border-0 text-black`}
-                                            type="text"
-                                            name=""
-                                            id=""
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <input
+                                            }} className='w-full flex items-center'>
+                                        <textarea
+                                        style={{
+                                            borderRadius: verificationFieldsRound,
+                                            background: 'white',
+                                        }}
                                             onChange={(e) => setReviewerComment(e.target.value)}
-                                            style={{
-                                                borderRadius: verificationFieldsRound,
-                                                background: 'white',
-                                            }}
-                                            placeholder="Please type your comment here"
-                                            className={`lg:w-[450px] md:w-[350px] w-[250px] h-[35px] focus:outline-none border-0 pl-1 text-black`}
+                                            placeholder={`Hi ${authenticatedUser.name},  Please type your review here`}
+                                            className={`w-full h-[35px] focus:outline-none border-0 pl-1 text-black`}
                                             type="text"
                                             name=""
                                             id=""
                                         />
+                                        {
+                                        (authenticatedUser?.name || reviewerComment) ? <span className="loading loading-dots loading-sm text-black"></span> : ''
+                                    }
                                     </div>
 
                                     <span onClick={handlePostReviewForIndividualComment} className={`${IndividualCSS.plusCommnet}`}><BiSend size={25}></BiSend></span>

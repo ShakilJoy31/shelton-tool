@@ -7,6 +7,7 @@ import { Inter } from 'next/font/google';
 
 import DashboardCSS from '../../style/Dashboard.module.css';
 import {
+  AuthenticUser,
   BlurForSafety,
   CategoryWisedProductsStore,
   CommentPermission,
@@ -26,6 +27,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export default function RootLayout({ children }) {
   return (
+    <AuthenticUser.Provider>
     <CommentPermission.Provider>
     <LoggedInUserStore.Provider>
     <BlurForSafety.Provider>
@@ -54,5 +56,6 @@ export default function RootLayout({ children }) {
     </BlurForSafety.Provider>
     </LoggedInUserStore.Provider>
     </CommentPermission.Provider>
+    </AuthenticUser.Provider>
   )
 }

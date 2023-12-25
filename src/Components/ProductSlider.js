@@ -19,6 +19,7 @@ import DashboardCSS from '../../style/Dashboard.module.css';
 import MyServiceCSS from '../../style/Dashboard.module.css';
 import IndividualCSS from '../../style/Individual.module.css';
 import {
+  AuthenticUser,
   CommentPermission,
   LoggedInUserStore,
   ProductsStore,
@@ -37,8 +38,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
     const [isEditable, setIsEditable] = useState(false);
     const { isLoggedIn, setIsLoggedIn } = LoggedInUserStore.useContainer();
     const { isCommentPermission, setIsCommentPermission } = CommentPermission.useContainer();
-    const [authenticatedUser, setAuthenticatedUser] = useState([]);
-    const [name, setName] = useState('');
+    const { authenticatedUser, setAuthenticatedUser } = AuthenticUser.useContainer();
     useEffect(() => {
         setPreviewImage(individualProduct?.productPicture[0]);
         if (JSON.parse(localStorage.getItem('editable')) === 'editable') {
@@ -47,7 +47,6 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
         if (JSON.parse(localStorage.getItem('user'))) {
             setIsLoggedIn(true);
             setAuthenticatedUser(JSON.parse(localStorage.getItem('user')));
-            setName(JSON.parse(localStorage.getItem('user')).name);
         }
     }, [])
 
@@ -130,7 +129,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
 
     const HandlePostingCommentOnTool = () => {
         const userComment = {
-            name: name,
+            name: authenticatedUser.name,
             comment: comment,
             equipmentPerformance: equipmentPerformance,
             customerService: customerService,
@@ -468,7 +467,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                                         borderRadius: verificationFieldsRound,
                                         background: 'white',
                                     }}
-                                    placeholder={`Hi ${name} Please type your comment here`}
+                                    placeholder={`Hi ${authenticatedUser.name} Please type your comment here`}
                                     className={`w-full h-[55px] focus:outline-none border-0 pl-1 text-black`}
                                     type="text"
                                     name=""

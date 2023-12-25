@@ -37,6 +37,12 @@ function useCommentPermission () {
 }
 export const CommentPermission = createContainer(useCommentPermission);
 
+function useAuthenticUser () {
+    const [authenticatedUser, setAuthenticatedUser] = useState([]);
+    return {authenticatedUser, setAuthenticatedUser};
+}
+export const AuthenticUser = createContainer(useAuthenticUser);
+
 
 // This state is decleared for blur.
 function useBlueForSafety () {
