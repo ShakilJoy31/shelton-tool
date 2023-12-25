@@ -38,6 +38,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
     const { isLoggedIn, setIsLoggedIn } = LoggedInUserStore.useContainer();
     const { isCommentPermission, setIsCommentPermission } = CommentPermission.useContainer();
     const [authenticatedUser, setAuthenticatedUser] = useState([]);
+    const [name, setName] = useState('');
     useEffect(() => {
         setPreviewImage(individualProduct?.productPicture[0]);
         if (JSON.parse(localStorage.getItem('editable')) === 'editable') {
@@ -46,6 +47,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
         if (JSON.parse(localStorage.getItem('user'))) {
             setIsLoggedIn(true);
             setAuthenticatedUser(JSON.parse(localStorage.getItem('user')));
+            setName(JSON.parse(localStorage.getItem('user')).name);
         }
     }, [])
 
@@ -58,8 +60,6 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
     const handleReviewImage = (picture) => {
         setPreviewImage(picture)
     }
-
-    const [message, setMessage] = useState('');
     const [selectedPackage, setSelectedPackage] = useState('');
     const [totalHiringCost, setTotalHiringCost] = useState();
     const handleHireTool = (tool, getPriceForHiring) => {
@@ -122,7 +122,6 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
     const [afterSales, setAfterSales] = useState(0);
     const [miscellaneous, setMiscellaneous] = useState(0);
     // States for the comment
-    const [name, setName] = useState('');
     const [comment, setComment] = useState('');
     function getCurrentDateTime() {
         const currentDate = new Date();
@@ -167,11 +166,9 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
         return daysDifference;
     }
     let hiringCustom;
-    useEffect(() => {
         if (hiringCustomFromTo && hiringCustomFrom) {
             hiringCustom = customDatesSelectedForHiring();
         }
-    }, [hiringCustomFromTo])
 
     const handleProcceedToHire = () => {
         let userDataForOrderTool = {}
@@ -203,11 +200,21 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                 hiringTime: getCurrentDateTime(),
             }
         }
-        CustomerAPI.userInformationForPlacOrderProduct(userDataForOrderTool).then(res => {
+        if(authenticatedUser.length !== 0){
+            if(!totalHiringCost){
+                setIsCommentPermission('Select your service.');
+            }else{
+                CustomerAPI.userInformationForPlacOrderProduct(userDataForOrderTool).then(res => {
             if (res.acknowledged === true) {
                 document.getElementById('placeOrderModal')?.showModal();
             }
         });
+            }
+        
+    }else{
+        setIsCommentPermission('Authentication is required!');
+        document.getElementById('loginModal').showModal();
+    }
     }
     return (
         <div data-aos="zoom-in-up">
@@ -453,26 +460,6 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                         <span onClick={HandlePostingCommentOnTool} style={{ zIndex: '1' }} className={`${IndividualCSS.postingComment} w-[165px]`}><span className='flex justify-center'>Post</span></span>
 
                         <div>
-                            <h1 className='mb-1'>Your Name</h1>
-                            <div className={`flex items-center ${MyServiceCSS.tableRoomInput}`}>
-                                <input
-                                    onChange={(e) => setName(e.target.value)}
-                                    style={{
-                                        borderRadius: verificationFieldsRound,
-                                        background: 'white',
-                                    }}
-                                    placeholder="Please type your name here"
-                                    className={`w-full pl-1 h-[35px] focus:outline-none border-0 text-black`}
-                                    type="text"
-                                    name=""
-                                    id=""
-                                />
-                            </div>
-                        </div>
-
-                        <div className='mb-3'><Divider color='slategrey'></Divider></div>
-
-                        <div>
                             <h1 className='mb-1'>Leave your comment</h1>
                             <div className={`flex items-center ${MyServiceCSS.tableRoomInput}`}>
                                 <textarea
@@ -481,7 +468,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                                         borderRadius: verificationFieldsRound,
                                         background: 'white',
                                     }}
-                                    placeholder="Please type your comment here"
+                                    placeholder={`Hi ${name} Please type your comment here`}
                                     className={`w-full h-[55px] focus:outline-none border-0 pl-1 text-black`}
                                     type="text"
                                     name=""
