@@ -6,7 +6,7 @@ import React, {
 } from 'react';
 
 import { useRouter } from 'next/navigation';
-import { AiOutlineClockCircle } from 'react-icons/ai';
+import { AiOutlineCalendar } from 'react-icons/ai';
 import { FaPlus } from 'react-icons/fa';
 import { IoStar } from 'react-icons/io5';
 import { TbAlertOctagonFilled } from 'react-icons/tb';
@@ -24,7 +24,6 @@ import {
   ProductsStore,
   UserStore,
 } from '../../userStore';
-import Button from './button';
 import CommentsAndReviews from './CommentsAndReviews';
 import Divider from './Divider';
 import SheltonLogin from './SheltonLogin';
@@ -87,12 +86,19 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
     // Functionality for the new project...
     const [hiringHour, setHiringHour] = useState('');
     const [hiringDay, setHiringDay] = useState('');
-    const [hiringCustom, setHiringCustom] = useState('');
+    const [hiringCustomFrom, setHiringCustomFrom] = useState('');
+    const [hiringCustomFromTo, setHiringCustomTo] = useState('');
 
-    const timeInputOfHiring = useRef(null);
-    const handleClockIconOpening = () => {
-        if (timeInputOfHiring.current) {
-            timeInputOfHiring.current.showPicker();
+    const timeInputOfHiringFrom = useRef(null);
+    const timeInputOfHiringTo = useRef(null);
+    const handleClockIconOpeningFrom = () => {
+        if (timeInputOfHiringFrom.current) {
+            timeInputOfHiringFrom.current.showPicker();
+        }
+    };
+    const handleClockIconOpeningTo = () => {
+        if (timeInputOfHiringTo.current) {
+            timeInputOfHiringTo.current.showPicker();
         }
     };
 
@@ -151,6 +157,21 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
             }
         });
     }
+    const customDatesSelectedForHiring = () => {
+        const StartingDate = hiringCustomFrom;
+        const EndDate = hiringCustomFromTo;
+        const startDate = new Date(StartingDate);
+        const endDate = new Date(EndDate);
+        const timeDifference = endDate.getTime() - startDate.getTime();
+        const daysDifference = timeDifference / (1000 * 3600 * 24);
+        return daysDifference;
+    }
+    let hiringCustom;
+    useEffect(() => {
+        if (hiringCustomFromTo && hiringCustomFrom) {
+            hiringCustom = customDatesSelectedForHiring();
+        }
+    }, [hiringCustomFromTo])
 
     const handleProcceedToHire = () => {
         let userDataForOrderTool = {}
@@ -212,7 +233,8 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
 
 
                     <div className={`${IndividualCSS.headingLeftBorder} lg:pl-3 md:pl-2`}>
-                        <h1 style={{ marginBottom: '12px', fontSize: '1.675rem', fontWeight: '700' }}>{individualProduct?.title}</h1>
+
+                        <h1 style={{ fontSize: '1.675rem', fontWeight: '700' }}>{individualProduct?.title}</h1>
 
                         <div className='flex justify-bewteen items-center gap-x-[12px]'>
                             <p onClick={() => handleHireTool('hour', individualProduct?.hourlyHire)} className={`hover:text-white hover:underline hover:cursor-pointer ${selectedPackage === 'hour' ? 'text-white font-bold' : 'text-slate-400'}`}>{individualProduct?.hourlyHire}/hour</p>
@@ -235,7 +257,8 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                                                 setTotalHiringCost(total);
                                                 setHiringDay('');
                                                 setHiringHour(e.target.value);
-                                                setHiringCustom('');
+                                                setHiringCustomFrom('');
+                                                setHiringCustomTo('')
                                             }}
                                             type="number"
                                             placeholder='Type hours'
@@ -257,7 +280,8 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                                                 setTotalHiringCost(total);
                                                 setHiringHour('');
                                                 setHiringDay(e.target.value);
-                                                setHiringCustom('');
+                                                setHiringCustomFrom('');
+                                                setHiringCustomTo('')
                                             }}
                                             type="number"
                                             placeholder='Type hours'
@@ -277,24 +301,24 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                                     <div className={`${IndividualCSS.timeInputContainer} lg:w-[165px] w-full md:w-[150px]`}>
                                         <input
                                             onChange={(e) => {
-                                                setHiringCustom(e.target.value);
+                                                setHiringCustomFrom(e.target.value)
                                                 setHiringHour('');
                                                 setHiringDay('');
                                             }}
-                                            type="time"
-                                            id="timeInput"
+                                            type="date"
+                                            id="dateInput"
                                             placeholder={new Date()}
-                                            ref={timeInputOfHiring}
+                                            ref={timeInputOfHiringFrom}
                                             className={`border-0 pl-[10px] focus:outline-none ${IndividualCSS.customInput} ${IndividualCSS.customInputRedIcon} `}
                                         />
                                         <span
-                                            onClick={handleClockIconOpening}
+                                            onClick={handleClockIconOpeningFrom}
                                             className={IndividualCSS.customClockIcon}
                                         >
-                                            <AiOutlineClockCircle
+                                            <AiOutlineCalendar
                                                 size={25}
                                                 color={'crimson'}
-                                            ></AiOutlineClockCircle>
+                                            ></AiOutlineCalendar>
                                         </span>
                                     </div>
                                 </div>
@@ -305,22 +329,26 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                                     <div className={`${IndividualCSS.timeInputContainer} g:w-[165px] w-full md:w-[150px]`}>
                                         <input
                                             onChange={(e) => {
-                                                setHiringHour(e.target.value);
+                                                const total = parseInt(individualProduct.dailyHire) * hiringCustom;
+                                                setHiringCustomTo(e.target.value)
+                                                setTotalHiringCost(total);
+                                                setHiringHour('');
+                                                setHiringDay('');
                                             }}
-                                            type="time"
-                                            id="timeInput"
+                                            type="date"
+                                            id="dateInput"
                                             placeholder={new Date()}
-                                            ref={timeInputOfHiring}
+                                            ref={timeInputOfHiringTo}
                                             className={`border-0 pl-[10px] focus:outline-none ${IndividualCSS.customInput} ${IndividualCSS.customInputRedIcon} `}
                                         />
                                         <span
-                                            onClick={handleClockIconOpening}
+                                            onClick={handleClockIconOpeningTo}
                                             className={IndividualCSS.customClockIcon}
                                         >
-                                            <AiOutlineClockCircle
+                                            <AiOutlineCalendar
                                                 size={25}
                                                 color={'crimson'}
-                                            ></AiOutlineClockCircle>
+                                            ></AiOutlineCalendar>
                                         </span>
                                     </div>
                                 </div>
@@ -342,25 +370,25 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                             </div>
                             {
                                 isEditable && <div className={`${IndividualCSS.theButton} hidden lg:block md:block`} onClick={handleEditByAdmin}>
-                                    <button className={`btn border-0 btn-sm w-[150px] normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Edit</button>
+                                    <button className={`btn border-0 btn-sm w-full lg:w-[300px] normal-case my-[12px] ${DashboardCSS.IndividualProductBuyNowButton}`}>Edit</button>
                                 </div>
                             }
                             {
                                 isEditable && <div className={`${IndividualCSS.theButton} hidden lg:block md:block`} onClick={() => document.getElementById('beforeDelete').showModal()}>
-                                    <button className={`btn border-0 btn-sm w-[150px] normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Delete Tool</button>
+                                    <button className={`btn border-0 btn-sm w-full lg:w-[300px] normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Delete Tool</button>
                                 </div>
                             }
                         </div>
 
                         {
-                            isEditable && <div className={`${IndividualCSS.theButton} lg:hidden block md:hidden`} onClick={handleEditByAdmin}>
-                                <Button background={'purple'} width='100%'><span className='text-white'>Edit</span></Button>
+                            isEditable && <div className={`${IndividualCSS.theButton} lg:hidden block md:hidden my-[12px]`} onClick={handleEditByAdmin}>
+                                <button className={`btn border-0 btn-sm w-full normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Edit</button>
                             </div>
                         }
 
                         {
-                            isEditable && <div className={`${IndividualCSS.theButton} lg:hidden block md:hidden mt-[24px]`} onClick={() => document.getElementById('beforeDelete').showModal()}>
-                                <Button background={'#DC3545'} width='100%'><span className='text-white'>Delete</span></Button>
+                            isEditable && <div className={`${IndividualCSS.theButton} lg:hidden block md:hidden`} onClick={() => document.getElementById('beforeDelete').showModal()}>
+                                <button className={`btn border-0 btn-sm w-full normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Delete Tool</button>
                             </div>
                         }
 
@@ -547,23 +575,23 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
 
 
             {/* The warning modal to delete the product*/}
-            <dialog id="beforeDelete" className="modal" style={{ maxWidth: '480px', transform: 'translateX(-50%)', left: '50%' }}>
+            <dialog id="beforeDelete" className="modal">
                 <div style={{
-                    color: 'white',
-                    background: '#DC3545',
-                    border: '1px solid white'
-                }} className="modal-box">
+                        color: 'white',
+                        background: 'black',
+                        border: '2px solid crimson'
+                    }} className="modal-box">
                     <div>
                         <h3 className="flex justify-center text-white items-center gap-x-2"><span><TbAlertOctagonFilled size={30} color={'black'}></TbAlertOctagonFilled></span> <span>Hey, Attention please!</span></h3>
                         <h1 className="flex justify-center">Do you want to delete this product?</h1>
                         <h1 className="flex justify-center">This is not reverseable!</h1>
                         <div className='flex justify-between items-center mt-[24px]'>
                             <div onClick={() => document.getElementById('beforeDelete').close()}>
-                                <Button background='green' width='150px'><span className='text-white'>Cancel</span></Button>
+                            <button className={`btn border-0 btn-sm bg-white text-black w-[150px] normal-case `}>Cancel</button>
                             </div>
 
                             <div onClick={handleDeleteProductByAdmin} className={`${IndividualCSS.theButton}`}>
-                                <Button background={'purple'} width='150px'><span className='text-white'>Delete</span></Button>
+                            <button className={`btn border-0 btn-sm w-[150px] normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Delete Tool</button>
                             </div>
                         </div>
 
@@ -579,12 +607,12 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
             {/* Modal for successfully hired a tool */}
             <dialog id="placeOrderModal" className="modal">
                 <div style={{
-                        color: 'white',
-                        background: 'black',
-                        border: '2px solid crimson'
-                    }} className="modal-box">
-                        Your hiring request is receieved. Please wait for the confirmation! <br></br> <br></br>
-                        Thank you so fuch for being with <span className='underline'>Shelton-tool</span>
+                    color: 'white',
+                    background: 'black',
+                    border: '2px solid crimson'
+                }} className="modal-box">
+                    Your hiring request is receieved. Please wait for the confirmation! <br></br> <br></br>
+                    Thank you so fuch for being with <span className='underline'>Shelton-tool</span>
                 </div>
                 <form method="dialog" className="modal-backdrop">
                     <button>close</button>
