@@ -2,10 +2,6 @@
 import React, { useState } from 'react';
 
 import {
-  usePathname,
-  useRouter,
-} from 'next/navigation';
-import {
   BiSend,
   BiSolidCommentAdd,
 } from 'react-icons/bi';
@@ -15,28 +11,10 @@ import { verificationFieldsRound } from '@/constants/speceing';
 
 import DashboardCSS from '../../style/Dashboard.module.css';
 import IndividualCSS from '../../style/Individual.module.css';
-import {
-  AuthenticUser,
-  ProductsStore,
-  UserStore,
-} from '../../userStore';
+import { AuthenticUser } from '../../userStore';
 
 const Page = ({ individualProduct, setIndividualProduct }) => {
-    ;
-    const router = useRouter();
-    const pathname = usePathname();
-    const { user, setUser } = UserStore.useContainer();
-    const { products, setProducts } = ProductsStore.useContainer();
-
-    // const handleScroll = () => {
-    //     if (
-    //         window.innerHeight + document.documentElement.scrollTop ===
-    //         document.documentElement.offsetHeight
-    //     ) {
-    //         const nextPage = products.length / 20 + 1;
-    //         loadMoreProducts(nextPage);
-    //     }
-    // };
+    const [viewReply, setViewReply] = useState(false);
     const [isReviewFields, setIsReviewFields] = useState(false);
     const [selectedCommentToReply, setSelectedCommentToReply] = useState(false);
     const [reviewerComment, setReviewerComment] = useState('');
@@ -45,6 +23,12 @@ const Page = ({ individualProduct, setIndividualProduct }) => {
         setIsReviewFields(true);
         const targetComment = individualProduct.comments.find(comment => comment?.userId === getComment?.userId);
         setSelectedCommentToReply(targetComment);
+    }
+    const [selectedRepliesToSee, setSelectedRepliesToSee] = useState(false);
+    const seeRepliesForTheTargetComment = (getComment) => {
+        setViewReply(!viewReply);
+        const targetComment = individualProduct.comments.find(comment => comment?.userId === getComment?.userId);
+        setSelectedRepliesToSee(targetComment);
     }
 
     function getCurrentDateTime() {
@@ -115,8 +99,13 @@ const Page = ({ individualProduct, setIndividualProduct }) => {
 
                             }
 
+                            {
+                                viewReply ? (comment?.userId === selectedRepliesToSee?.userId ? <span onClick={()=> seeRepliesForTheTargetComment(comment)} className={`${DashboardCSS.date} hover:cursor-pointer`}>Close replies</span> : <span onClick={()=> seeRepliesForTheTargetComment(comment)} className={`${DashboardCSS.date} hover:cursor-pointer`}>View {comment?.reviews?.length} replies</span>) : <span onClick={()=> seeRepliesForTheTargetComment(comment)} className={`${DashboardCSS.date} hover:cursor-pointer`}>View {comment?.reviews?.length} replies</span>
+                            }
+                            
                             {/* The reviews for the individual comment */}
-                            <div className='pl-3 md:pl-4 lg:pl-5'>
+                            {
+                                viewReply ? (comment?.userId === selectedRepliesToSee?.userId ? <div className='pl-3 md:pl-4 lg:pl-5'>
                                 {
                                     comment?.reviews?.map((review, index) => <div key={index} style={{borderBottom: `${index + 1 === comment?.reviews?.length ? '' : '1px solid #888'}`}} className='mb-1'>
                                         <div className='flex justify-between items-center'>
@@ -130,7 +119,9 @@ const Page = ({ individualProduct, setIndividualProduct }) => {
                                         </div>
                                     </div>)
                                 }
-                            </div>
+                            </div> : '') : ''
+                            }
+                            
                         </div>
                     </div>
                 ))}

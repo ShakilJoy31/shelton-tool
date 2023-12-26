@@ -81,8 +81,6 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
         })
     }
 
-
-    // Functionality for the new project...
     const [hiringHour, setHiringHour] = useState('');
     const [hiringDay, setHiringDay] = useState('');
     const [hiringCustomFrom, setHiringCustomFrom] = useState('');
