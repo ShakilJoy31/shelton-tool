@@ -25,6 +25,7 @@ const Page = ({setIsLoggedIn}) => {
     const [errorMessage, setErrorMessage] = useState('');
     const { isCommentPermission, setIsCommentPermission } = CommentPermission.useContainer();
     const { authenticatedUser, setAuthenticatedUser } = AuthenticUser.useContainer();
+    // const { isLoggedIn, setIsLoggedIn } = LoggedInUserStore.useContainer();
 
     useEffect(()=>{
         CustomerAPI.handleLoggedInUsers().then(res => setLoggedInUser(res));
@@ -84,6 +85,10 @@ const Page = ({setIsLoggedIn}) => {
                     
                 </div>
             </div>
+            <span onClick={()=> {
+                document.getElementById('signupModal').showModal();
+                document.getElementById('loginModal').close();
+            }} className={`${DashboardCSS.date} hover:cursor-pointer flex justify-center`}>New to Shelton tool? Sign up</span>
         </div>
     );
 };

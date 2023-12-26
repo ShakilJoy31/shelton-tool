@@ -94,6 +94,7 @@ const addComment = async (toolId, comment) => {
 };
 
 const addReviewToComment = async (toolId, getReview) => {
+  console.log(getReview);
   const axiosInstance = axios.create({
     baseURL: BASE_URL
   });

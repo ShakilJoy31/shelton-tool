@@ -79,6 +79,10 @@ const Page = ({setIsLoggedIn}) => {
 
                     </div>
                 </div>
+                <span onClick={()=> {
+                    document.getElementById('loginModal').showModal();
+                    document.getElementById('signupModal').close();
+                }} className={`${DashboardCSS.date} hover:cursor-pointer flex justify-center`}>Already have an account. Login</span>
             </div>
         </div>
     )

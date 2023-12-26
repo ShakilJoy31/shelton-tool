@@ -12,6 +12,7 @@ import {
   useRouter,
 } from 'next/navigation';
 import { BiSearch } from 'react-icons/bi';
+import { FaUserCircle } from 'react-icons/fa';
 import { IoLogOut } from 'react-icons/io5';
 import { LuMenu } from 'react-icons/lu';
 
@@ -125,6 +126,25 @@ const Page = () => {
             <p onClick={handleHomeImage} className={`${MyServiceCSS.sheltonTools} hover:cursor-pointer`}>Shelton Tools</p>
           </div>
 
+          {
+            !isLoggedIn ? <div className="flex items-center ml-2 gap-x-2">
+              <label className="flex items-center justify-between" htmlFor="settingsModal"><span className={`${DashboardCSS.date} hover:cursor-pointer`}><FaUserCircle size={25}></FaUserCircle></span></label>
+
+
+
+              {/* <button onClick={() => {
+            document.getElementById('loginModal').showModal();
+          }} className={`btn border-0 btn-sm w-[50px] normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Login</button>
+
+          <button onClick={() => {
+            document.getElementById('signupModal').showModal();
+          }} className={`btn border-0 btn-sm w-[50px] normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Sign up</button> */}
+            </div> : <span onClick={() => {
+              setIsLoggedIn(false);
+              localStorage.removeItem('user')
+            }} className={`${IndividualCSS.plusCommnet}`}><IoLogOut size={25}></IoLogOut></span>
+          }
+
         </div>
 
         <div className={` ${isInputForTheProduct ? MyServiceCSS.inputDisabled : MyServiceCSS.tableRoomInput} w-full`}>
@@ -176,21 +196,19 @@ const Page = () => {
 
 
         {
-          !isLoggedIn ? <div className="lg:flex items-center hidden ml-2 gap-x-2">
-          <button onClick={() => {
-            document.getElementById('loginModal').showModal();
-          }} className={`btn border-0 btn-sm w-full lg:w-[100px] normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Login</button>
+          !isLoggedIn ? <div className="lg:flex md:flex items-center hidden ml-2 gap-x-2">
+            <button onClick={() => {
+              document.getElementById('loginModal').showModal();
+            }} className={`btn border-0 btn-sm w-full lg:w-[100px] normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Login</button>
 
-          <button onClick={() => {
-            document.getElementById('signupModal').showModal();
-          }} className={`btn border-0 btn-sm w-full lg:w-[100px] normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Sign up</button>
-        </div> : <span onClick={()=>{
-          setIsLoggedIn(false);
-          localStorage.removeItem('user')
-        }} className={`${IndividualCSS.plusCommnet}`}><IoLogOut size={25}></IoLogOut></span>
+            <button onClick={() => {
+              document.getElementById('signupModal').showModal();
+            }} className={`btn border-0 btn-sm w-full lg:w-[100px] normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Sign up</button>
+          </div> : <span onClick={() => {
+            setIsLoggedIn(false);
+            localStorage.removeItem('user')
+          }} className={`${IndividualCSS.plusCommnet} lg:flex md:flex hidden`}><IoLogOut size={25}></IoLogOut></span>
         }
-        
-
 
       </div>
 
@@ -223,6 +241,27 @@ const Page = () => {
           <button>close</button>
         </form>
       </dialog>
+
+
+      <div>
+        <input type="checkbox" id="settingsModal" className="modal-toggle" />
+        <div className="modal">
+          <div style={{
+          color: 'white',
+          background: 'black',
+          border: '2px solid crimson'
+        }} className="relative modal-box">
+            <label htmlFor="settingsModal" className="absolute btn btn-sm btn-circle right-2 top-2">✕</label>
+            <button onClick={() => {
+              document.getElementById('loginModal').showModal();
+            }} className={`btn border-0 btn-sm w-full normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Login</button>
+
+            <button onClick={() => {
+              document.getElementById('signupModal').showModal();
+            }} className={`btn border-0 btn-sm w-full normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Sign up</button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

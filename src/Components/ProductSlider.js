@@ -125,7 +125,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
         return currentDate.toLocaleString();
     }
 
-    const HandlePostingCommentOnTool = () => {
+    const HandlePostingCommentOnTool = async () => {
         const userComment = {
             name: authenticatedUser.name,
             comment: comment,
@@ -135,7 +135,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
             afterSales: afterSales,
             miscellaneous: miscellaneous
         }
-        CustomerAPI.addComment(individualProduct._id, userComment).then(res => {
+        await CustomerAPI.addComment(individualProduct._id, userComment).then(async res => {
             if (res) {
                 const commentTime = getCurrentDateTime();
                 if (res?.comments) {
@@ -149,7 +149,10 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                         comments: [{ commentAndRating: userComment, timeOfComment: commentTime }]
                     }));
                 }
-                document.getElementById('readyToCommentModal').close();
+                await CustomerAPI.handleGettingProduct(individualProduct?._id).then(res => {
+                    setIndividualProduct(res);
+                    document.getElementById('readyToCommentModal').close();
+                });
             }
         });
     }
