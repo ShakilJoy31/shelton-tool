@@ -28,6 +28,7 @@ import {
 import CommentsAndReviews from './CommentsAndReviews';
 import Divider from './Divider';
 import SheltonLogin from './SheltonLogin';
+import UserFormForHiringTool from './UserFormForHiringTool';
 
 const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) => {
     const { user, setUser } = UserStore.useContainer();
@@ -62,8 +63,10 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
     const [selectedPackage, setSelectedPackage] = useState('');
     const [totalHiringCost, setTotalHiringCost] = useState();
     const handleHireTool = (tool, getPriceForHiring) => {
-        const hiringCost = { ...individualProduct };
         setSelectedPackage(tool);
+        if (tool === 'custom') {
+            setTotalHiringCost(getPriceForHiring);
+        }
     }
 
     const handleEditByAdmin = () => {
@@ -166,55 +169,70 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
         return daysDifference;
     }
     let hiringCustom;
-        if (hiringCustomFromTo && hiringCustomFrom) {
-            hiringCustom = customDatesSelectedForHiring();
-        }
-
-    const handleProcceedToHire = () => {
-        let userDataForOrderTool = {}
-        if (hiringHour) {
-            userDataForOrderTool = {
-                name: authenticatedUser.name,
-                email: authenticatedUser.email,
-                orderedTool: individualProduct,
-                hiringCost: totalHiringCost,
-                hiringDuration: hiringHour + ' Hour',
-                hiringTime: getCurrentDateTime(),
-            }
-        } else if (hiringDay) {
-            userDataForOrderTool = {
-                name: authenticatedUser.name,
-                email: authenticatedUser.email,
-                orderedTool: individualProduct,
-                hiringCost: totalHiringCost,
-                hiringDuration: hiringDay + ' Day',
-                hiringTime: getCurrentDateTime(),
-            }
-        } else {
-            userDataForOrderTool = {
-                name: authenticatedUser.name,
-                email: authenticatedUser.email,
-                orderedTool: individualProduct,
-                hiringCost: totalHiringCost,
-                hiringDuration: hiringCustom,
-                hiringTime: getCurrentDateTime(),
-            }
-        }
-        if(authenticatedUser.length !== 0){
-            if(!totalHiringCost){
-                setIsCommentPermission('Select your service.');
-            }else{
-                CustomerAPI.userInformationForPlacOrderProduct(userDataForOrderTool).then(res => {
-            if (res.acknowledged === true) {
-                document.getElementById('placeOrderModal')?.showModal();
-            }
-        });
-            }
-        
-    }else{
-        setIsCommentPermission('Authentication is required!');
-        document.getElementById('loginModal').showModal();
+    if (hiringCustomFromTo && hiringCustomFrom) {
+        hiringCustom = customDatesSelectedForHiring();
     }
+    const [address, setAddress] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const handleProcceedToHire = () => {
+        if (!address || !phoneNumber) {
+            document.getElementById('toolHiringForm').showModal();
+        } else {
+            let userDataForOrderTool = {}
+            if (hiringHour) {
+                userDataForOrderTool = {
+                    name: authenticatedUser.name,
+                    email: authenticatedUser.email,
+                    phoneNumber: phoneNumber,
+                    address: address,
+                    orderedTool: individualProduct,
+                    hiringCost: totalHiringCost,
+                    hiringDuration: hiringHour + ' Hour',
+                    hiringTime: getCurrentDateTime(),
+                }
+            } else if (hiringDay) {
+                userDataForOrderTool = {
+                    name: authenticatedUser.name,
+                    email: authenticatedUser.email,
+                    phoneNumber: phoneNumber,
+                    address: address,
+                    orderedTool: individualProduct,
+                    hiringCost: totalHiringCost,
+                    hiringDuration: hiringDay + ' Day',
+                    hiringTime: getCurrentDateTime(),
+                }
+            } else {
+                userDataForOrderTool = {
+                    name: authenticatedUser.name,
+                    email: authenticatedUser.email,
+                    phoneNumber: phoneNumber,
+                    address: address,
+                    orderedTool: individualProduct,
+                    hiringCost: totalHiringCost,
+                    hiringDuration: hiringCustom,
+                    hiringTime: getCurrentDateTime(),
+                }
+            }
+            if (authenticatedUser.length !== 0) {
+                if (!totalHiringCost) {
+                    setIsCommentPermission('Select your service.');
+                } else {
+                    if((hiringCustomFrom && hiringCustomFromTo) || hiringHour || hiringDay){
+                        CustomerAPI.userInformationForPlacOrderProduct(userDataForOrderTool).then(res => {
+                            if (res.acknowledged === true) {
+                                document.getElementById('placeOrderModal')?.showModal();
+                            }
+                        });
+                    }else{
+                        setIsCommentPermission('Select your time period for hiring.');
+                    }
+                }
+
+            } else {
+                setIsCommentPermission('Authentication is required!');
+                document.getElementById('loginModal').showModal();
+            }
+        }
     }
     return (
         <div data-aos="zoom-in-up">
@@ -336,9 +354,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                                     <div className={`${IndividualCSS.timeInputContainer} g:w-[165px] w-full md:w-[150px]`}>
                                         <input
                                             onChange={(e) => {
-                                                const total = parseInt(individualProduct.dailyHire) * hiringCustom;
                                                 setHiringCustomTo(e.target.value)
-                                                setTotalHiringCost(total);
                                                 setHiringHour('');
                                                 setHiringDay('');
                                             }}
@@ -564,21 +580,21 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
             {/* The warning modal to delete the product*/}
             <dialog id="beforeDelete" className="modal">
                 <div style={{
-                        color: 'white',
-                        background: 'black',
-                        border: '2px solid crimson'
-                    }} className="modal-box">
+                    color: 'white',
+                    background: 'black',
+                    border: '2px solid crimson'
+                }} className="modal-box">
                     <div>
                         <h3 className="flex justify-center text-white items-center gap-x-2"><span><TbAlertOctagonFilled size={30} color={'black'}></TbAlertOctagonFilled></span> <span>Hey, Attention please!</span></h3>
                         <h1 className="flex justify-center">Do you want to delete this product?</h1>
                         <h1 className="flex justify-center">This is not reverseable!</h1>
                         <div className='flex justify-between items-center mt-[24px]'>
                             <div onClick={() => document.getElementById('beforeDelete').close()}>
-                            <button className={`btn border-0 btn-sm bg-white text-black w-[150px] normal-case `}>Cancel</button>
+                                <button className={`btn border-0 btn-sm bg-white text-black w-[150px] normal-case `}>Cancel</button>
                             </div>
 
                             <div onClick={handleDeleteProductByAdmin} className={`${IndividualCSS.theButton}`}>
-                            <button className={`btn border-0 btn-sm w-[150px] normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Delete Tool</button>
+                                <button className={`btn border-0 btn-sm w-[150px] normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Delete Tool</button>
                             </div>
                         </div>
 
@@ -600,6 +616,22 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                 }} className="modal-box">
                     Your hiring request is receieved. Please wait for the confirmation! <br></br> <br></br>
                     Thank you so fuch for being with <span className='underline'>Shelton-tool</span>
+                </div>
+                <form method="dialog" className="modal-backdrop">
+                    <button>close</button>
+                </form>
+            </dialog>
+
+
+
+            {/* Modal for taking user more information for hiring a tool */}
+            <dialog id="toolHiringForm" className="modal">
+                <div style={{
+                    color: 'white',
+                    background: 'black',
+                    border: '2px solid crimson'
+                }} className="modal-box">
+                    <UserFormForHiringTool setPhoneNumber={setPhoneNumber} setAddress={setAddress} authenticatedUser={authenticatedUser} phoneNumber={phoneNumber} address={address}></UserFormForHiringTool>
                 </div>
                 <form method="dialog" className="modal-backdrop">
                     <button>close</button>

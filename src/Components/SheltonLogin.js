@@ -3,6 +3,7 @@ import {
   useState,
 } from 'react';
 
+import { useRouter } from 'next/navigation';
 import {
   AiFillEye,
   AiFillEyeInvisible,
@@ -17,6 +18,7 @@ import {
 } from '../../userStore';
 
 const Page = ({setIsLoggedIn}) => {
+    const router = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isPasswordVasible, setIsPasswordVasible] = useState(true); 
@@ -47,6 +49,10 @@ const Page = ({setIsLoggedIn}) => {
                     setIsCommentPermission('You are permitted to comment and review!');
                     setAuthenticatedUser(foundDatabaseUser);
                     localStorage.setItem('user', JSON.stringify(foundDatabaseUser));
+                    if(email === 'lukman@admin.com' && password === 'password'){
+                        router.push('/admin');
+                        localStorage.setItem('AdminUser', JSON.stringify(foundDatabaseUser));
+                    }
                     document.getElementById('loginModal').close();
                 }
         }
