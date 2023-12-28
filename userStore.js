@@ -39,6 +39,11 @@ export const CommentPermission = createContainer(useCommentPermission);
 
 function useAuthenticUser () {
     const [authenticatedUser, setAuthenticatedUser] = useState([]);
+    useEffect(()=>{
+        if (JSON.parse(localStorage.getItem('user'))) {
+            setAuthenticatedUser(JSON.parse(localStorage.getItem('user')));
+        }
+    },[])
     return {authenticatedUser, setAuthenticatedUser};
 }
 export const AuthenticUser = createContainer(useAuthenticUser);

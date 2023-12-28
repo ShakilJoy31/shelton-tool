@@ -123,22 +123,13 @@ const Page = () => {
           </div>
 
           <div className={`block mx-auto`}>
-            <p onClick={handleHomeImage} className={`${MyServiceCSS.sheltonTools} hover:cursor-pointer`}>Shelton Tools</p>
+            <p onClick={handleHomeImage} className={`${MyServiceCSS.sheltonTools} hover:cursor-pointer flex items-center gap-x-2`}>Shelton Tools</p>
           </div>
 
           {
             !isLoggedIn ? <div className="flex items-center ml-2 gap-x-2">
               <label className="flex items-center justify-between" htmlFor="settingsModal"><span className={`${DashboardCSS.date} hover:cursor-pointer`}><FaUserCircle size={25}></FaUserCircle></span></label>
 
-
-
-              {/* <button onClick={() => {
-            document.getElementById('loginModal').showModal();
-          }} className={`btn border-0 btn-sm w-[50px] normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Login</button>
-
-          <button onClick={() => {
-            document.getElementById('signupModal').showModal();
-          }} className={`btn border-0 btn-sm w-[50px] normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Sign up</button> */}
             </div> : <span onClick={() => {
               setIsLoggedIn(false);
               localStorage.removeItem('user')

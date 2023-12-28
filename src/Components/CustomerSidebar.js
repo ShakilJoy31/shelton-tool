@@ -6,12 +6,17 @@ import {
   useRouter,
 } from 'next/navigation';
 import { ImCross } from 'react-icons/im';
+import { MdSpaceDashboard } from 'react-icons/md';
 
 import DashboardCSS from '../../style/Dashboard.module.css';
-import { BlurForSafety } from '../../userStore';
+import {
+  BlurForSafety,
+  LoggedInUserStore,
+} from '../../userStore';
 
 const CustomerSidebar = ({ drawer }) => {
     const { isModalOpen, setIsModalOpen } = BlurForSafety.useContainer();
+    const { isLoggedIn, setIsLoggedIn } = LoggedInUserStore.useContainer();
     const router = useRouter();
     const pathname = usePathname();
     const [isBackgroundActive, setIsBackgroundActive] = useState(false);
@@ -29,7 +34,12 @@ const CustomerSidebar = ({ drawer }) => {
 
                 <div className={`flex items-center justify-around w-full lg:pt-[24px] pt-[10px]`}>
 
-            <p onClick={handleHomeImage} className={`${DashboardCSS.sheltonTools} hover:cursor-pointer`}>Shelton Tools</p>
+                    <div className='flex items-center gap-x-2'>
+                        <p onClick={handleHomeImage} className={`${DashboardCSS.sheltonTools} hover:cursor-pointer`}><span>Shelton Tools</span></p> 
+                        {
+                            isLoggedIn && <span onClick={() => router.push('/user-order')} className={``}><MdSpaceDashboard size={25}></MdSpaceDashboard></span>
+                        }
+                    </div>
 
                     <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay">
                         <span className='block lg:hidden md:hidden'>

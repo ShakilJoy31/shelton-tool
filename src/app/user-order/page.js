@@ -9,13 +9,21 @@ import { useRouter } from 'next/navigation';
 import { AdminAPI } from '@/APIcalling/adminAPI';
 import CustomModal from '@/Components/CustomModal';
 
-import AdminCSS from '../../../../style/AdminCSS.module.css';
-import HomeComponentCss from '../../../../style/ComponentStyle.module.css';
-import MyServiceCSS from '../../../../style/MyServiceCSS.module.css';
-import { BlurForSafety } from '../../../../userStore';
+import AdminCSS from '../../../style/AdminCSS.module.css';
+import HomeComponentCss from '../../../style/ComponentStyle.module.css';
+import {
+  AuthenticUser,
+  BlurForSafety,
+} from '../../../userStore';
 
 const Page = () => {
     const { isModalOpen, setIsModalOpen } = BlurForSafety.useContainer();
+    const { authenticatedUser, setAuthenticatedUser } = AuthenticUser.useContainer();
+    useEffect(()=>{
+        if (JSON.parse(localStorage.getItem('user'))) {
+            setAuthenticatedUser(JSON.parse(localStorage.getItem('user')));
+        }
+    },[])
     const closeModal = () => {
         setIsModalOpen(false);
     };
@@ -23,45 +31,23 @@ const Page = () => {
     const [orders, setOrders] = useState([]);
     useEffect(() => {
         AdminAPI.handleGettingOrders().then(res => {
-            const onlyArrivedOrders  = res.filter(order => !order.isAccepted);
+            const onlyArrivedOrders  = res.filter(order => order?.email === authenticatedUser?.email);
             setOrders(onlyArrivedOrders)
         });
     }, [])
-    console.log(orders);
     const [seeOrderByAdmin, setSeeOrderByAdmin] = useState(null);
     const [idForTheOrderToDelete, setValue] = useState('');
-
+console.log(orders);
     const handleCheckOrderByAdmin = (getOrder) => {
         document.getElementById('productDetails').showModal();
         setSeeOrderByAdmin(getOrder);
         setValue(getOrder);
     }
-
-    const handleRejectOrder = () => {
-        AdminAPI.handleDeletingOrder(idForTheOrderToDelete._id).then(res => {
-            const filterOrder = orders.filter(order => order._id !== idForTheOrderToDelete._id);
-            setOrders(filterOrder);
-            document.getElementById('productDetails').close();
-        });
-    }
-    const handleAcceptOrder = () => {
-        const customData = { idForTheOrderToDelete, isAccepted: true};
-        AdminAPI.handleAcceptOrderByAdmin(idForTheOrderToDelete._id, customData).then(res => {
-            console.log(res);
-            const filterOrder = orders.filter(order => order._id !== idForTheOrderToDelete._id);
-            setOrders(filterOrder);
-            document.getElementById('productDetails').close();
-        });
-    }
+    
     return (
         <div className='my-[24px] min-h-screen'>
-            <div className={`${isModalOpen ? HomeComponentCss.blurred : ''}`}>
-                <div className='flex lg:justify-end md:justify-end justify-center mb-2 gap-x-2'>
-                    <button onClick={() => router.push('/admin/accepted-orders')} style={{ background: 'purple', borderRadius: '5px' }} className="py-[5px] px-[3px] md:px-[3px] lg:px-[5px]">Accepted</button>
-
-                    <button onClick={() => router.push('/admin')} style={{ background: 'purple', borderRadius: '5px' }} className="py-[5px] px-[3px] md:px-[3px] lg:px-[5px]">Upload Product</button>
-                </div>
-
+            <p style={{color: 'lightskyblue'}} className='flex justify-center text-2xl font-bold'>Dashboard</p>
+            <div>
                 {
                     orders?.length < 1 ? <div className='w-full min-h-screen items-center flex justify-center'>
                         <div>
@@ -149,18 +135,6 @@ const Page = () => {
                                     </tr>
                             </tbody>
                         </table>
-                    </div>
-
-                    <div className='mt-[25px]'>
-                        <div className='lg:flex items-center grid lg:justify-between md:justify-between gap-x-[48px]'>
-                            <div onClick={handleRejectOrder}><button className={`btn border-0 btn-sm lg:w-[150px] md:w-[140px] w-full normal-case ${MyServiceCSS.IndividualProductBuyNowButton} mb-[15px] md:mb-0 lg:mb-0`}>Delete Order</button>
-                            </div>
-
-                            <div onClick={handleAcceptOrder}>
-                                <button className={`btn border-0 btn-sm lg:w-[150px] md:w-[140px] w-full normal-case ${MyServiceCSS.IndividualProductBuyNowButtonForPlacingOrder}`}>Accept Order</button>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
                 <form method="dialog" className="modal-backdrop">
