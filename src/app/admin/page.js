@@ -7,7 +7,6 @@ import React, {
 import { useRouter } from 'next/navigation';
 import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { RxCross1 } from 'react-icons/rx';
-import { TbAlertOctagonFilled } from 'react-icons/tb';
 
 import { AdminAPI } from '@/APIcalling/adminAPI';
 import CustomModal from '@/Components/CustomModal';
@@ -124,19 +123,15 @@ const Page = () => {
         const restImage = hostedImages?.filter(img => img !== getImage);
         setHostedImages(restImage);
     }
-
-    const handleEditProduct = (e) => {
-        if (e.target.value === 'IAMADMIN') {
-            localStorage.setItem("editable", JSON.stringify('editable'));
-            router.push('/products');
-        }
-    }
     return (
         <div className={`mt-[24px]`}>
             <div className={`${isModalOpen ? HomeComponentCss.blurred : ''}`}>
                 <div className='flex lg:justify-end md:justify-end justify-center mb-2 gap-x-2'>
                     {
-                        isAdmin ? '' : <button onClick={() => document.getElementById('productEditConfirmation').showModal()} style={{ background: 'purple', borderRadius: '5px' }} className="py-[5px] px-[3px] md:px-[3px] lg:px-[5px]">Edit Product</button>
+                        isAdmin ? '' : <button onClick={() => {
+                            localStorage.setItem("editable", JSON.stringify('editable'));
+                            router.push('/products');
+                        }} style={{ background: 'purple', borderRadius: '5px' }} className="py-[5px] px-[3px] md:px-[3px] lg:px-[5px]">Edit Product</button>
                     }
 
                     <button onClick={() => router.push('/admin/user-order')} style={{ background: 'purple', borderRadius: '5px' }} className="py-[5px] px-[3px] md:px-[3px] lg:px-[5px]">Check Orders</button>
@@ -190,32 +185,32 @@ const Page = () => {
                 <div>
                     <div>
                         <span className=''>Category</span>
-                            <div className='mb-[6px]'>
-                                <div className='flex items-center justify-between gap-x-4'>
-                                    <select
-                                        onChange={(e) => setCategories(e.target.value)}
-                                        style={{ background: 'purple' }}
-                                        className="w-full select focus:outline-none"
-                                    >
-                                        <option>Building Construction Equipment</option>
-                                        <option>Cleaning Equipment</option>
-                                        <option>Decorating tools</option>
-                                        <option>Landscaping tools</option>
-                                        <option>Electrical and Heating tools</option>
-                                        <option>Plumbing tools</option>
-                                        <option>Automotive Tools</option>
-                                        <option>Carpentry Equipment</option>
-                                        <option>Gardening Supplies</option>
-                                        <option>Painting Tools</option>
-                                        <option>Masonry Tools</option>
-                                        <option>Woodworking Machinery</option>
-                                        <option>Flooring and Tiling Equipment</option>
-                                        <option>Welding and Metalworking Tools</option>
-                                        <option>Demolition Equipment</option>
-                                    </select>
+                        <div className='mb-[6px]'>
+                            <div className='flex items-center justify-between gap-x-4'>
+                                <select
+                                    onChange={(e) => setCategories(e.target.value)}
+                                    style={{ background: 'purple' }}
+                                    className="w-full select focus:outline-none"
+                                >
+                                    <option>Building Construction Equipment</option>
+                                    <option>Cleaning Equipment</option>
+                                    <option>Decorating tools</option>
+                                    <option>Landscaping tools</option>
+                                    <option>Electrical and Heating tools</option>
+                                    <option>Plumbing tools</option>
+                                    <option>Automotive Tools</option>
+                                    <option>Carpentry Equipment</option>
+                                    <option>Gardening Supplies</option>
+                                    <option>Painting Tools</option>
+                                    <option>Masonry Tools</option>
+                                    <option>Woodworking Machinery</option>
+                                    <option>Flooring and Tiling Equipment</option>
+                                    <option>Welding and Metalworking Tools</option>
+                                    <option>Demolition Equipment</option>
+                                </select>
 
-                                </div>
                             </div>
+                        </div>
                     </div>
                 </div>
 
@@ -278,25 +273,6 @@ const Page = () => {
                     border: '1px solid white'
                 }} className="modal-box">
                     <h3 className="flex justify-center text-white">{cartAddedMessage}</h3>
-                </div>
-                <form method="dialog" className="modal-backdrop">
-                    <button>close</button>
-                </form>
-            </dialog>
-
-
-            <dialog id="productEditConfirmation" className="modal" style={{ maxWidth: '480px', transform: 'translateX(-50%)', left: '50%' }}>
-                <div style={{
-                    color: 'white',
-                    background: 'crimson',
-                    border: '2px solid white'
-                }} className="modal-box">
-                    <h3 className="flex justify-center text-white items-center gap-x-2"><span><TbAlertOctagonFilled size={30} color={'black'}></TbAlertOctagonFilled></span> <span>Hey, Attention please!</span></h3>
-
-                    <h3 className="flex justify-center text-white my-2">If you are authenticated, you should obviously know the secret password. Type it below to procceed.</h3>
-
-                    <textarea onChange={(e) => handleEditProduct(e)} style={{ background: 'purple' }} type="text" className="w-full pt-2 input focus:outline-none input-md " />
-
                 </div>
                 <form method="dialog" className="modal-backdrop">
                     <button>close</button>

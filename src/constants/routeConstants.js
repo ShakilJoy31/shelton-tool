@@ -21,3 +21,5 @@ export const productDeleteByAdmin = '/deleteProduct/';
 export const productDeleteAPI = '/deleteProductByAdmin/';
 export const gettingAllProductsAPI = '/get-all-products';
 export const productUpdateAPI = '/accepted-order-by-admin';
+export const commentDeleteByAdmin = '/delete-comment/';
+export const reviewDeleteByAdmin = '/delete-review/';

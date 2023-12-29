@@ -31,6 +31,7 @@ import SheltonLogin from './SheltonLogin';
 import UserFormForHiringTool from './UserFormForHiringTool';
 
 const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) => {
+    const [rattings, setRatting] = useState(0);
     const { user, setUser } = UserStore.useContainer();
     const { products, setProducts } = ProductsStore.useContainer();
     const router = useRouter();
@@ -49,8 +50,16 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
             setIsLoggedIn(true);
             setAuthenticatedUser(JSON.parse(localStorage.getItem('user')));
         }
+        const userRatting = individualProduct?.comments?.map(comment => comment?.commentAndRating?.avarageRating); 
+        const sum = userRatting?.reduce((accumulator, currentValue) => {
+            if (typeof currentValue === 'number') {
+              return accumulator + currentValue;
+            }
+            return accumulator;
+          }, 0);
+          const average = Math.round(sum / (userRatting?.length));
+        setRatting(average);
     }, [])
-
     setTimeout(function () {
         if (warning) {
             document.getElementById('readyToCommentModal')?.close();
@@ -64,9 +73,6 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
     const [totalHiringCost, setTotalHiringCost] = useState();
     const handleHireTool = (tool, getPriceForHiring) => {
         setSelectedPackage(tool);
-        if (tool === 'custom') {
-            setTotalHiringCost(getPriceForHiring);
-        }
     }
 
     const handleEditByAdmin = () => {
@@ -136,7 +142,8 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
             customerService: customerService,
             supportServices: supportServices,
             afterSales: afterSales,
-            miscellaneous: miscellaneous
+            miscellaneous: miscellaneous,
+            avarageRating: ((equipmentPerformance || 0) + (customerService || 0) + (supportServices || 0) + (afterSales || 0) + (miscellaneous || 0)) / ((equipmentPerformance && 1) + (customerService && 1) + (supportServices && 1) + (afterSales && 1) + (miscellaneous && 1))
         }
         await CustomerAPI.addComment(individualProduct._id, userComment).then(async res => {
             if (res) {
@@ -159,6 +166,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
             }
         });
     }
+    const [hiringCustom, setHiringCustom] = useState(0);
     const customDatesSelectedForHiring = () => {
         const StartingDate = hiringCustomFrom;
         const EndDate = hiringCustomFromTo;
@@ -168,10 +176,14 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
         const daysDifference = timeDifference / (1000 * 3600 * 24);
         return daysDifference;
     }
-    let hiringCustom;
-    if (hiringCustomFromTo && hiringCustomFrom) {
-        hiringCustom = customDatesSelectedForHiring();
-    }
+    useEffect(()=>{
+        if (hiringCustomFromTo && hiringCustomFrom) {
+            const getDays = customDatesSelectedForHiring();
+            setHiringCustom(getDays);
+            setTotalHiringCost(getDays * parseInt(individualProduct?.dailyHire))
+        }
+    },[hiringCustomFromTo, hiringCustomFrom])
+
     const [address, setAddress] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const handleProcceedToHire = () => {
@@ -259,7 +271,21 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
 
                     <div className={`${IndividualCSS.headingLeftBorder} lg:pl-3 md:pl-2`}>
 
-                        <h1 style={{ fontSize: '1.675rem', fontWeight: '700' }}>{individualProduct?.title}</h1>
+                        {
+                            <div className='flex items-center gap-x-2'>
+                                <h1 style={{ fontSize: '1.675rem', fontWeight: '700' }}>{individualProduct?.title}</h1>
+
+                            <div className='flex justify-evenly items-center'>
+                            {[1, 2, 3, 4, 5].map((value) => (
+                                <span
+                                key={value}
+                                onClick={() => setAfterSales(value)}>
+                                    <IoStar size={25} color={`${value <= rattings ? 'crimson' : 'white'}`}></IoStar>
+                                </span>
+                            ))}
+                            </div>
+                        </div>
+                        }
 
                         <div className='flex justify-bewteen items-center gap-x-[12px]'>
                             <p onClick={() => handleHireTool('hour', individualProduct?.hourlyHire)} className={`hover:text-white hover:underline hover:cursor-pointer ${selectedPackage === 'hour' ? 'text-white font-bold' : 'text-slate-400'}`}>{individualProduct?.hourlyHire}/hour</p>
@@ -614,8 +640,10 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                     background: 'black',
                     border: '2px solid crimson'
                 }} className="modal-box">
-                    Your hiring request is receieved. Please wait for the confirmation! <br></br> <br></br>
-                    Thank you so fuch for being with <span className='underline'>Shelton-tool</span>
+                    Your hiring request is receieved. Please wait for the confirmation! <br></br>
+                    Thank you so fuch for being with <span  className='underline'>Shelton-tool</span>
+
+                    <p onClick={() => router.push('/user-order')} className='flex items-center gap-x-3 text-slate-300 hover:text-white hover:cursor-pointer mt-3 justify-center'>Go to Dashboard</p>
                 </div>
                 <form method="dialog" className="modal-backdrop">
                     <button>close</button>

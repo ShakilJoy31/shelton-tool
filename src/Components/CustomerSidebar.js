@@ -6,7 +6,6 @@ import {
   useRouter,
 } from 'next/navigation';
 import { ImCross } from 'react-icons/im';
-import { MdSpaceDashboard } from 'react-icons/md';
 
 import DashboardCSS from '../../style/Dashboard.module.css';
 import {
@@ -36,9 +35,7 @@ const CustomerSidebar = ({ drawer }) => {
 
                     <div className='flex items-center gap-x-2'>
                         <p onClick={handleHomeImage} className={`${DashboardCSS.sheltonTools} hover:cursor-pointer`}><span>Shelton Tools</span></p> 
-                        {
-                            isLoggedIn && <span onClick={() => router.push('/user-order')} className={``}><MdSpaceDashboard size={25}></MdSpaceDashboard></span>
-                        }
+                        
                     </div>
 
                     <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay">

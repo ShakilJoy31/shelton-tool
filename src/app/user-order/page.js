@@ -37,13 +37,12 @@ const Page = () => {
     }, [])
     const [seeOrderByAdmin, setSeeOrderByAdmin] = useState(null);
     const [idForTheOrderToDelete, setValue] = useState('');
-console.log(orders);
     const handleCheckOrderByAdmin = (getOrder) => {
         document.getElementById('productDetails').showModal();
         setSeeOrderByAdmin(getOrder);
         setValue(getOrder);
     }
-    
+    console.log(orders)
     return (
         <div className='my-[24px] min-h-screen'>
             <p style={{color: 'lightskyblue'}} className='flex justify-center text-2xl font-bold'>Dashboard</p>
@@ -85,7 +84,7 @@ console.log(orders);
 
                                         <td className=''><span className='flex justify-center'>{order.email}</span></td>
 
-                                        <td className=''><span className='flex justify-center'>{order.phone}</span></td>
+                                        <td className=''><span className='flex justify-center'>{order.phoneNumber}</span></td>
 
                                         <td className=''><span className='flex justify-center'>{order.address}</span></td>
 

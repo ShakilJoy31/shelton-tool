@@ -198,6 +198,7 @@ const Page = () => {
           </div> : <span onClick={() => {
             setIsLoggedIn(false);
             localStorage.removeItem('user')
+            localStorage.removeItem('AdminUser')
           }} className={`${IndividualCSS.plusCommnet} lg:flex md:flex hidden`}><IoLogOut size={25}></IoLogOut></span>
         }
 

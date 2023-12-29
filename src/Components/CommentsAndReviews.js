@@ -1,10 +1,14 @@
 "use client"
-import React, { useState } from 'react';
+import React, {
+  useEffect,
+  useState,
+} from 'react';
 
 import {
   BiSend,
   BiSolidCommentAdd,
 } from 'react-icons/bi';
+import { MdDelete } from 'react-icons/md';
 
 import { CustomerAPI } from '@/APIcalling/customerAPI';
 import { verificationFieldsRound } from '@/constants/speceing';
@@ -18,6 +22,7 @@ const Page = ({ individualProduct, setIndividualProduct }) => {
     const [isReviewFields, setIsReviewFields] = useState(false);
     const [selectedCommentToReply, setSelectedCommentToReply] = useState(false);
     const [reviewerComment, setReviewerComment] = useState('');
+    const [isAdmin, setIsAdmin] = useState(false);
     const { authenticatedUser, setAuthenticatedUser } = AuthenticUser.useContainer();
     const handleTargetCommentToReview = async (getComment) => {
         await CustomerAPI.handleGettingProduct(individualProduct._id).then(res => {
@@ -26,6 +31,11 @@ const Page = ({ individualProduct, setIndividualProduct }) => {
             setSelectedCommentToReply(targetComment);
         });
     }
+    useEffect(()=> {
+        if(JSON.parse(localStorage.getItem('AdminUser'))){
+            setIsAdmin(true);
+        }
+    },[])
     const [selectedRepliesToSee, setSelectedRepliesToSee] = useState(false);
     const seeRepliesForTheTargetComment = (getComment) => {
         setViewReply(!viewReply);
@@ -52,11 +62,24 @@ const Page = ({ individualProduct, setIndividualProduct }) => {
             setIsReviewFields(false);
         })
     }
+
+    const handleDeleteCommentByAdmin = (getComment) =>{
+        CustomerAPI.handleDeletingCommentByAdmin(individualProduct?._id, getComment.userId).then(res => {
+            CustomerAPI.handleGettingProduct(individualProduct?._id).then(res => setIndividualProduct(res))
+        });
+    }
+    const handleDeleteReviewByAdmin = (getReview) =>{
+        CustomerAPI.handleDeletingReviewByAdmin(individualProduct?._id, getReview.repliedCommentId, getReview.reviewerComment).then(res => {
+            console.log(res);
+            CustomerAPI.handleGettingProduct(individualProduct?._id).then(res => setIndividualProduct(res))
+        });
+    }
     return (
         <div>
             <div className={`${DashboardCSS.commentsContainer}`}>
                 {individualProduct.comments.map((comment, index) => (
                     <div style={{ borderBottom: `${index + 1 === individualProduct?.comments?.length ? '' : '1px solid crimson'}` }} className={`${DashboardCSS.comment}`} key={index}>
+
                         <div>
                             <div className='flex justify-between items-center'>
                                 <p className={`${DashboardCSS.user}`}>{comment.commentAndRating?.name}</p>
@@ -68,7 +91,14 @@ const Page = ({ individualProduct, setIndividualProduct }) => {
                             <div className='flex justify-between items-center'>
                                 <p className={`${DashboardCSS.commentText}`}>{comment?.commentAndRating?.comment}</p>
 
+                                <div className='flex items-center gap-x-3'>
                                 <span onClick={() => handleTargetCommentToReview(comment)} className={`${IndividualCSS.plusCommnet}`}><BiSolidCommentAdd size={25}></BiSolidCommentAdd></span>
+
+                                {
+                                    isAdmin ? <span onClick={() => handleDeleteCommentByAdmin(comment)} className={`${IndividualCSS.plusCommnet}`}><MdDelete size={25}></MdDelete></span> : ''
+                                }
+                                
+                                </div>
                             </div>
 
                             {
@@ -118,6 +148,8 @@ const Page = ({ individualProduct, setIndividualProduct }) => {
 
                                             <div className='flex justify-between items-center'>
                                                 <p className={`${DashboardCSS.commentText}`}>{review.reviewerComment}</p>
+
+                                                <span onClick={() => handleDeleteReviewByAdmin(review)} className={`${IndividualCSS.plusCommnet}`}><MdDelete size={25}></MdDelete></span>
                                             </div>
                                         </div>)
                                     }

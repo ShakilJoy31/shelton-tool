@@ -3,9 +3,11 @@ import axios from 'axios';
 import {
   BASE_URL,
   categorizedProductsAPI,
+  commentDeleteByAdmin,
   gettingAllProductsAPI,
   placedOrderAPI,
   productsGettingAPI,
+  reviewDeleteByAdmin,
 } from '@/constants/routeConstants';
 
 // Fetching all product for search. 
@@ -93,6 +95,21 @@ const addComment = async (toolId, comment) => {
   }
 };
 
+// Delete comment bu admin
+const handleDeletingCommentByAdmin = async (toolId, commentId) => {
+  const axiosInstance = axios.create({
+      baseURL: BASE_URL
+  });
+
+  try {
+      const response = await axiosInstance.delete(`${commentDeleteByAdmin}${toolId}/${commentId}`);
+      return response.data;
+  } catch (error) {
+    return error;
+  }
+};
+
+
 const addReviewToComment = async (toolId, getReview) => {
   console.log(getReview);
   const axiosInstance = axios.create({
@@ -107,6 +124,21 @@ const addReviewToComment = async (toolId, getReview) => {
   }
 };
 
+// Delete review by admin
+const handleDeletingReviewByAdmin = async (toolId, commentId, reviewDataToDelete) => {
+  console.log(reviewDataToDelete);
+  const axiosInstance = axios.create({
+      baseURL: BASE_URL
+  });
+
+  try {
+      const response = await axiosInstance.post(`${reviewDeleteByAdmin}${toolId}/${commentId}`, {reviewDataToDelete: reviewDataToDelete});
+      console.log(response);
+      return response.data;
+  } catch (error) {
+    return error;
+  }
+};
 
 
 // Authentication for the user. 
@@ -146,5 +178,7 @@ export const CustomerAPI = {
   addComment,
   addReviewToComment,
   handleSignin,
-  handleLoggedInUsers
+  handleLoggedInUsers,
+  handleDeletingCommentByAdmin,
+  handleDeletingReviewByAdmin
 }
