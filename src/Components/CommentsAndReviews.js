@@ -149,7 +149,10 @@ const Page = ({ individualProduct, setIndividualProduct }) => {
                                             <div className='flex justify-between items-center'>
                                                 <p className={`${DashboardCSS.commentText}`}>{review.reviewerComment}</p>
 
-                                                <span onClick={() => handleDeleteReviewByAdmin(review)} className={`${IndividualCSS.plusCommnet}`}><MdDelete size={25}></MdDelete></span>
+                                                {
+                                                    isAdmin ? <span onClick={() => handleDeleteReviewByAdmin(review)} className={`${IndividualCSS.plusCommnet}`}><MdDelete size={25}></MdDelete></span> : ''
+                                                }
+                                                
                                             </div>
                                         </div>)
                                     }
