@@ -44,14 +44,15 @@ const Page = ({setIsLoggedIn}) => {
         if(foundDatabaseUser){
             const checkLocalStorage = JSON.parse(localStorage.getItem('user'));
                 if (!checkLocalStorage) {
-                    setIsLoggedIn(true);
                     setLoading(false);
                     setIsCommentPermission('You are permitted to comment and review!');
-                    setAuthenticatedUser(foundDatabaseUser);
-                    localStorage.setItem('user', JSON.stringify(foundDatabaseUser));
                     if(email === 'lukman@admin.com' && password === 'password'){
+                        setAuthenticatedUser(foundDatabaseUser);
                         router.push('/admin');
                         localStorage.setItem('AdminUser', JSON.stringify(foundDatabaseUser));
+                    }else{
+                        setIsLoggedIn(foundDatabaseUser);
+                        localStorage.setItem('user', JSON.stringify(foundDatabaseUser));
                     }
                     document.getElementById('loginModal').close();
                 }

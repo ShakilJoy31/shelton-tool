@@ -35,6 +35,7 @@ const Page = () => {
     const [color, setColor] = useState('');
     const [category, setCategory] = useState('Best seller');
     const [categories, setCategories] = useState('Building Construction equipment');
+    const [catg, setCatg] = useState('Building Construction equipment');
     const [availability, setAvailability] = useState('In Stock');
     const [description, setDescription] = useState('');
     const [picture, setPicture] = useState('');
@@ -45,10 +46,13 @@ const Page = () => {
         if (JSON.parse(localStorage.getItem('productToEdit'))) {
             setProductToEdit(JSON.parse(localStorage.getItem('productToEdit')));
             setToolName(JSON.parse(localStorage.getItem('productToEdit')).title);
-            setPrice(JSON.parse(localStorage.getItem('productToEdit')).price);
-            setOfferPrice(JSON.parse(localStorage.getItem('productToEdit')).offerPrice);
-            setOffer(JSON.parse(localStorage.getItem('productToEdit')).offer);
+            setPrice(JSON.parse(localStorage.getItem('productToEdit')).hourlyHire);
+            setOfferPrice(JSON.parse(localStorage.getItem('productToEdit')).dailyHire);
+            setOffer(JSON.parse(localStorage.getItem('productToEdit')).longTermHire);
             setColor(JSON.parse(localStorage.getItem('productToEdit')).color);
+
+            setCatg(JSON.parse(localStorage.getItem('productToEdit')).category);
+
             setDescription(JSON.parse(localStorage.getItem('productToEdit')).description);
             setHostedImages(JSON.parse(localStorage.getItem('productToEdit')).productPicture);
         }
@@ -192,6 +196,9 @@ const Page = () => {
                                     style={{ background: 'purple' }}
                                     className="w-full select focus:outline-none"
                                 >
+                                    {
+                                    catg ? <option>{catg}</option> : ''
+                                    }
                                     <option>Building Construction Equipment</option>
                                     <option>Cleaning Equipment</option>
                                     <option>Decorating tools</option>

@@ -27,6 +27,11 @@ export const CategoryWisedProductsStore = createContainer(useCategoryWiseProduct
 
 function useLoggedInUserStore () {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    useEffect(()=>{
+        if(JSON.parse(localStorage.getItem('user'))){
+            setIsLoggedIn(JSON.parse(localStorage.getItem('user')))
+        }
+    },[])
     return {isLoggedIn, setIsLoggedIn};
 }
 export const LoggedInUserStore = createContainer(useLoggedInUserStore);
@@ -38,10 +43,10 @@ function useCommentPermission () {
 export const CommentPermission = createContainer(useCommentPermission);
 
 function useAuthenticUser () {
-    const [authenticatedUser, setAuthenticatedUser] = useState([]);
+    const [authenticatedUser, setAuthenticatedUser] = useState(false);
     useEffect(()=>{
-        if (JSON.parse(localStorage.getItem('user'))) {
-            setAuthenticatedUser(JSON.parse(localStorage.getItem('user')));
+        if (JSON.parse(localStorage.getItem('AdminUser'))) {
+            setAuthenticatedUser(JSON.parse(localStorage.getItem('AdminUser')));
         }
     },[])
     return {authenticatedUser, setAuthenticatedUser};

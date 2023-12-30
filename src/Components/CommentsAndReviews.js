@@ -15,7 +15,10 @@ import { verificationFieldsRound } from '@/constants/speceing';
 
 import DashboardCSS from '../../style/Dashboard.module.css';
 import IndividualCSS from '../../style/Individual.module.css';
-import { AuthenticUser } from '../../userStore';
+import {
+  AuthenticUser,
+  LoggedInUserStore,
+} from '../../userStore';
 
 const Page = ({ individualProduct, setIndividualProduct }) => {
     const [viewReply, setViewReply] = useState(false);
@@ -23,6 +26,7 @@ const Page = ({ individualProduct, setIndividualProduct }) => {
     const [selectedCommentToReply, setSelectedCommentToReply] = useState(false);
     const [reviewerComment, setReviewerComment] = useState('');
     const [isAdmin, setIsAdmin] = useState(false);
+    const { isLoggedIn, setIsLoggedIn } = LoggedInUserStore.useContainer();
     const { authenticatedUser, setAuthenticatedUser } = AuthenticUser.useContainer();
     const handleTargetCommentToReview = async (getComment) => {
         await CustomerAPI.handleGettingProduct(individualProduct._id).then(res => {
@@ -50,7 +54,7 @@ const Page = ({ individualProduct, setIndividualProduct }) => {
     const handlePostReviewForIndividualComment = () => {
         const reviewTime = getCurrentDateTime();
         const reviewData = {
-            reviewerName: authenticatedUser.name,
+            reviewerName: authenticatedUser.name || isLoggedIn.name,
             reviewerComment: reviewerComment,
             repliedCommentId: selectedCommentToReply?.userId,
             reviewTime: reviewTime
@@ -70,7 +74,6 @@ const Page = ({ individualProduct, setIndividualProduct }) => {
     }
     const handleDeleteReviewByAdmin = (getReview) =>{
         CustomerAPI.handleDeletingReviewByAdmin(individualProduct?._id, getReview.repliedCommentId, getReview.reviewerComment).then(res => {
-            console.log(res);
             CustomerAPI.handleGettingProduct(individualProduct?._id).then(res => setIndividualProduct(res))
         });
     }
@@ -95,7 +98,7 @@ const Page = ({ individualProduct, setIndividualProduct }) => {
                                 <span onClick={() => handleTargetCommentToReview(comment)} className={`${IndividualCSS.plusCommnet}`}><BiSolidCommentAdd size={25}></BiSolidCommentAdd></span>
 
                                 {
-                                    isAdmin ? <span onClick={() => handleDeleteCommentByAdmin(comment)} className={`${IndividualCSS.plusCommnet}`}><MdDelete size={25}></MdDelete></span> : ''
+                                    authenticatedUser ? <span onClick={() => handleDeleteCommentByAdmin(comment)} className={`${IndividualCSS.plusCommnet}`}><MdDelete size={25}></MdDelete></span> : ''
                                 }
                                 
                                 </div>
@@ -114,7 +117,7 @@ const Page = ({ individualProduct, setIndividualProduct }) => {
                                                 background: 'white',
                                             }}
                                             onChange={(e) => setReviewerComment(e.target.value)}
-                                            placeholder={`Hi ${authenticatedUser.name},  Please type your review here`}
+                                            placeholder={`Hi ${authenticatedUser.name || isLoggedIn.name},  Please type your review here`}
                                             className={`w-full h-[35px] focus:outline-none border-0 pl-1 text-black`}
                                             type="text"
                                             name=""
@@ -150,7 +153,7 @@ const Page = ({ individualProduct, setIndividualProduct }) => {
                                                 <p className={`${DashboardCSS.commentText}`}>{review.reviewerComment}</p>
 
                                                 {
-                                                    isAdmin ? <span onClick={() => handleDeleteReviewByAdmin(review)} className={`${IndividualCSS.plusCommnet}`}><MdDelete size={25}></MdDelete></span> : ''
+                                                    authenticatedUser ? <span onClick={() => handleDeleteReviewByAdmin(review)} className={`${IndividualCSS.plusCommnet}`}><MdDelete size={25}></MdDelete></span> : ''
                                                 }
                                                 
                                             </div>

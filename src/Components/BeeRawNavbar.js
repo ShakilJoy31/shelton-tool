@@ -24,6 +24,7 @@ import DashboardCSS from '../../style/Dashboard.module.css';
 import IndividualCSS from '../../style/Individual.module.css';
 import MyServiceCSS from '../../style/MyServiceCSS.module.css';
 import {
+  AuthenticUser,
   BlurForSafety,
   CategoryWisedProductsStore,
   LoggedInUserStore,
@@ -46,6 +47,7 @@ const Page = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const [data, setData] = useState([]);
   const { isLoggedIn, setIsLoggedIn } = LoggedInUserStore.useContainer();
+  const { authenticatedUser, setAuthenticatedUser } = AuthenticUser.useContainer();
   useEffect(() => {
     CustomerAPI.handleGettingAllProducts().then(res => {
       setData(res)
@@ -127,13 +129,18 @@ const Page = () => {
           </div>
 
           {
-            !isLoggedIn ? <div className="flex items-center ml-2 gap-x-2">
+            (isLoggedIn || authenticatedUser) ? <span onClick={() => {
+              setIsAdmin(false)
+              localStorage.removeItem('user')
+              localStorage.removeItem('editable')
+              localStorage.removeItem('AdminUser')
+              localStorage.removeItem('authenticAdmin')
+              setIsLoggedIn(false);
+              setAuthenticatedUser(false);
+            }} className={`${IndividualCSS.plusCommnet}`}><IoLogOut size={25}></IoLogOut></span> : <div className="flex items-center ml-2 gap-x-2">
               <label className="flex items-center justify-between" htmlFor="settingsModal"><span className={`${DashboardCSS.date} hover:cursor-pointer`}><FaUserCircle size={25}></FaUserCircle></span></label>
 
-            </div> : <span onClick={() => {
-              setIsLoggedIn(false);
-              localStorage.removeItem('user')
-            }} className={`${IndividualCSS.plusCommnet}`}><IoLogOut size={25}></IoLogOut></span>
+            </div>
           }
 
         </div>
@@ -187,7 +194,15 @@ const Page = () => {
 
 
         {
-          !isLoggedIn ? <div className="lg:flex md:flex items-center hidden ml-2 gap-x-2">
+          (isLoggedIn || authenticatedUser) ? <span onClick={() => {
+            setIsAdmin(false)
+            localStorage.removeItem('user')
+            localStorage.removeItem('editable')
+            setIsLoggedIn(false)
+            setAuthenticatedUser(false);
+            localStorage.removeItem('AdminUser')
+            localStorage.removeItem('authenticAdmin')
+          }} className={`${IndividualCSS.plusCommnet} lg:flex md:flex hidden`}><IoLogOut size={25}></IoLogOut></span> : <div className="lg:flex md:flex items-center hidden ml-2 gap-x-2">
             <button onClick={() => {
               document.getElementById('loginModal').showModal();
             }} className={`btn border-0 btn-sm w-full lg:w-[100px] normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Login</button>
@@ -195,11 +210,7 @@ const Page = () => {
             <button onClick={() => {
               document.getElementById('signupModal').showModal();
             }} className={`btn border-0 btn-sm w-full lg:w-[100px] normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Sign up</button>
-          </div> : <span onClick={() => {
-            setIsLoggedIn(false);
-            localStorage.removeItem('user')
-            localStorage.removeItem('AdminUser')
-          }} className={`${IndividualCSS.plusCommnet} lg:flex md:flex hidden`}><IoLogOut size={25}></IoLogOut></span>
+          </div>
         }
 
       </div>

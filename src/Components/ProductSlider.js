@@ -31,35 +31,71 @@ import SheltonLogin from './SheltonLogin';
 import UserFormForHiringTool from './UserFormForHiringTool';
 
 const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) => {
-    const [rattings, setRatting] = useState(0);
     const { user, setUser } = UserStore.useContainer();
     const { products, setProducts } = ProductsStore.useContainer();
     const router = useRouter();
+    const [numberOfUserRattings, setNumberOfUserRattings] = useState([]);
     const [previewImage, setPreviewImage] = useState('');
     const [warning, setWarning] = useState(false);
-    const [isEditable, setIsEditable] = useState(false);
     const { isLoggedIn, setIsLoggedIn } = LoggedInUserStore.useContainer();
     const { isCommentPermission, setIsCommentPermission } = CommentPermission.useContainer();
     const { authenticatedUser, setAuthenticatedUser } = AuthenticUser.useContainer();
+
+    const [equipmentPerformanceDB, setEquipmentPerformanceDB] = useState(0);
+    const [customerServiceDB, setCustomerServiceDB] = useState(0);
+    const [supportServicesDB, setSupportServicesDB] = useState(0);
+    const [afterSalesDB, setAfterSalesDB] = useState(0);
+    const [miscellaneousDB, setMiscellaneousDB] = useState(0);
     useEffect(() => {
         setPreviewImage(individualProduct?.productPicture[0]);
-        if (JSON.parse(localStorage.getItem('editable')) === 'editable') {
-            setIsEditable(true);
-        }
-        if (JSON.parse(localStorage.getItem('user'))) {
-            setIsLoggedIn(true);
-            setAuthenticatedUser(JSON.parse(localStorage.getItem('user')));
-        }
-        const userRatting = individualProduct?.comments?.map(comment => comment?.commentAndRating?.avarageRating); 
-        const sum = userRatting?.reduce((accumulator, currentValue) => {
+        const userRatting = individualProduct?.comments?.map(comment => comment?.commentAndRating?.avarageRating);
+        const rattings = individualProduct?.comments?.map(comment => comment?.commentAndRating);
+        const equipmentRatting = rattings.map(getValue => getValue.equipmentPerformance);
+        const customerServiceRatting = rattings.map(getValue => getValue.customerService);
+        const supportServicesRatting = rattings.map(getValue => getValue.supportServices);
+        const afterSalesRatting = rattings.map(getValue => getValue.afterSales);
+        const miscellaneousRatting = rattings.map(getValue => getValue.miscellaneous);
+
+        setEquipmentPerformanceDB(Math.round(equipmentRatting?.reduce((accumulator, currentValue) => {
             if (typeof currentValue === 'number') {
-              return accumulator + currentValue;
+                return accumulator + currentValue;
             }
             return accumulator;
-          }, 0);
-          const average = Math.round(sum / (userRatting?.length));
-        setRatting(average);
-    }, [])
+        }, 0) / (userRatting?.length)))
+
+        setCustomerServiceDB(Math.round(customerServiceRatting?.reduce((accumulator, currentValue) => {
+            if (typeof currentValue === 'number') {
+                return accumulator + currentValue;
+            }
+            return accumulator;
+        }, 0) / (userRatting?.length)))
+
+        setSupportServicesDB(Math.round(supportServicesRatting?.reduce((accumulator, currentValue) => {
+            if (typeof currentValue === 'number') {
+                return accumulator + currentValue;
+            }
+            return accumulator;
+        }, 0) / (userRatting?.length)))
+
+        setAfterSalesDB(Math.round(afterSalesRatting?.reduce((accumulator, currentValue) => {
+            if (typeof currentValue === 'number') {
+                return accumulator + currentValue;
+            }
+            return accumulator;
+        }, 0) / (userRatting?.length)))
+
+        setMiscellaneousDB(Math.round(miscellaneousRatting?.reduce((accumulator, currentValue) => {
+            if (typeof currentValue === 'number') {
+                return accumulator + currentValue;
+            }
+            return accumulator;
+        }, 0) / (userRatting?.length)))
+
+        console.log(equipmentRatting.filter(ratting => ratting > 0)?.length);
+
+        setNumberOfUserRattings([equipmentRatting.filter(ratting => ratting > 0)?.length, customerServiceRatting.filter(ratting => ratting > 0)?.length, supportServicesRatting.filter(ratting => ratting > 0)?.length, afterSalesRatting.filter(ratting => ratting > 0)?.length, miscellaneousRatting.filter(ratting => ratting > 0)?.length])
+    }, [individualProduct])
+
     setTimeout(function () {
         if (warning) {
             document.getElementById('readyToCommentModal')?.close();
@@ -109,7 +145,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
     };
 
     const handleUserWantsToComment = () => {
-        if (isLoggedIn) {
+        if (isLoggedIn || authenticatedUser) {
             document.getElementById('readyToCommentModal').showModal();
         } else {
             setIsCommentPermission('Authentication is required!');
@@ -133,10 +169,9 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
         const currentDate = new Date();
         return currentDate.toLocaleString();
     }
-
     const HandlePostingCommentOnTool = async () => {
         const userComment = {
-            name: authenticatedUser.name,
+            name: authenticatedUser.name || isLoggedIn.name,
             comment: comment,
             equipmentPerformance: equipmentPerformance,
             customerService: customerService,
@@ -176,13 +211,13 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
         const daysDifference = timeDifference / (1000 * 3600 * 24);
         return daysDifference;
     }
-    useEffect(()=>{
+    useEffect(() => {
         if (hiringCustomFromTo && hiringCustomFrom) {
             const getDays = customDatesSelectedForHiring();
             setHiringCustom(getDays);
             setTotalHiringCost(getDays * parseInt(individualProduct?.dailyHire))
         }
-    },[hiringCustomFromTo, hiringCustomFrom])
+    }, [hiringCustomFromTo, hiringCustomFrom])
 
     const [address, setAddress] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
@@ -229,13 +264,13 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                 if (!totalHiringCost) {
                     setIsCommentPermission('Select your service.');
                 } else {
-                    if((hiringCustomFrom && hiringCustomFromTo) || hiringHour || hiringDay){
+                    if ((hiringCustomFrom && hiringCustomFromTo) || hiringHour || hiringDay) {
                         CustomerAPI.userInformationForPlacOrderProduct(userDataForOrderTool).then(res => {
                             if (res.acknowledged === true) {
                                 document.getElementById('placeOrderModal')?.showModal();
                             }
                         });
-                    }else{
+                    } else {
                         setIsCommentPermission('Select your time period for hiring.');
                     }
                 }
@@ -272,19 +307,9 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                     <div className={`${IndividualCSS.headingLeftBorder} lg:pl-3 md:pl-2`}>
 
                         {
-                            <div className='flex items-center gap-x-2'>
+                            <div>
                                 <h1 style={{ fontSize: '1.675rem', fontWeight: '700' }}>{individualProduct?.title}</h1>
-
-                            <div className='flex justify-evenly items-center'>
-                            {[1, 2, 3, 4, 5].map((value) => (
-                                <span
-                                key={value}
-                                onClick={() => setAfterSales(value)}>
-                                    <IoStar size={25} color={`${value <= rattings ? 'crimson' : 'white'}`}></IoStar>
-                                </span>
-                            ))}
                             </div>
-                        </div>
                         }
 
                         <div className='flex justify-bewteen items-center gap-x-[12px]'>
@@ -292,7 +317,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
 
                             <p onClick={() => handleHireTool('day', individualProduct?.dailyHire)} className={`text-slate-400 hover:text-white hover:underline hover:cursor-pointer ${selectedPackage === 'day' ? 'text-white font-bold' : 'text-slate-400'}`}>{individualProduct?.dailyHire}/day</p>
 
-                            <p onClick={() => handleHireTool('custom', individualProduct?.longTermHire)} className={`text-slate-400 hover:text-white hover:underline hover:cursor-pointer ${selectedPackage === 'custom' ? 'text-white font-bold' : 'text-slate-400'}`}>{individualProduct?.longTermHire}/custom</p>
+                            <p onClick={() => handleHireTool('custom', individualProduct?.longTermHire)} className={`text-slate-400 hover:text-white hover:underline hover:cursor-pointer ${selectedPackage === 'custom' ? 'text-white font-bold' : 'text-slate-400'}`}>Custom</p>
                         </div>
 
 
@@ -418,25 +443,25 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                                 <button className={`btn border-0 btn-sm w-full lg:w-[300px] normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Procceed to Hire</button>
                             </div>
                             {
-                                isEditable && <div className={`${IndividualCSS.theButton} hidden lg:block md:block`} onClick={handleEditByAdmin}>
+                                authenticatedUser && <div className={`${IndividualCSS.theButton} hidden lg:block md:block`} onClick={handleEditByAdmin}>
                                     <button className={`btn border-0 btn-sm w-full lg:w-[300px] normal-case my-[12px] ${DashboardCSS.IndividualProductBuyNowButton}`}>Edit</button>
                                 </div>
                             }
                             {
-                                isEditable && <div className={`${IndividualCSS.theButton} hidden lg:block md:block`} onClick={() => document.getElementById('beforeDelete').showModal()}>
+                                authenticatedUser && <div className={`${IndividualCSS.theButton} hidden lg:block md:block`} onClick={() => document.getElementById('beforeDelete').showModal()}>
                                     <button className={`btn border-0 btn-sm w-full lg:w-[300px] normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Delete Tool</button>
                                 </div>
                             }
                         </div>
 
                         {
-                            isEditable && <div className={`${IndividualCSS.theButton} lg:hidden block md:hidden my-[12px]`} onClick={handleEditByAdmin}>
+                            authenticatedUser && <div className={`${IndividualCSS.theButton} lg:hidden block md:hidden my-[12px]`} onClick={handleEditByAdmin}>
                                 <button className={`btn border-0 btn-sm w-full normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Edit</button>
                             </div>
                         }
 
                         {
-                            isEditable && <div className={`${IndividualCSS.theButton} lg:hidden block md:hidden`} onClick={() => document.getElementById('beforeDelete').showModal()}>
+                            authenticatedUser && <div className={`${IndividualCSS.theButton} lg:hidden block md:hidden`} onClick={() => document.getElementById('beforeDelete').showModal()}>
                                 <button className={`btn border-0 btn-sm w-full normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Delete Tool</button>
                             </div>
                         }
@@ -444,14 +469,166 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                         {/* Description for mobile. */}
                         <div className='lg:hidden block md:hidden my-[12px]'>
                             <p style={{ whiteSpace: 'pre-line' }}>{individualProduct?.description}</p>
+
+                            <div>
+                        <h1 style={{ color: 'crimson' }} className='flex justify-center text-2xl my-4'>Rattings for this tool</h1>
+                        <div>
+                            <h3 style={{fontSize: '12px'}} className="flex justify-center text-white">How was the performance of this equipment? <span className='text-slate-400 ml-1 hover:text-white'>{numberOfUserRattings[0]} people rated</span></h3>
+                            <div className='flex justify-evenly items-center'>
+                                {[1, 2, 3, 4, 5].map((value) => (
+                                    <span
+                                        key={value}
+                                        onClick={() => setEquipmentPerformance(value)}>
+                                        <IoStar size={25} color={`${value <= equipmentPerformanceDB ? 'crimson' : 'white'}`}></IoStar>
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className='mb-3'><Divider color='slategrey'></Divider></div>
+
+                        <div>
+                            <h3 style={{fontSize: '12px'}} className="flex justify-center text-white">How was the customer service? <span className='text-slate-400 ml-1 hover:text-white'>{numberOfUserRattings[1]} people rated</span></h3>
+                            <div className='flex justify-evenly items-center'>
+                                {[1, 2, 3, 4, 5].map((value) => (
+                                    <span
+                                        key={value}
+                                        onClick={() => setCustomerService(value)}>
+                                        <IoStar size={25} color={`${value <= customerServiceDB ? 'crimson' : 'white'}`}></IoStar>
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className='mb-3'><Divider color='slategrey'></Divider></div>
+
+                        <div>
+                            <h3 style={{fontSize: '12px'}} className="flex justify-center text-white">Are you satiesfied with the support services? <span className='text-slate-400 ml-1 hover:text-white'>{numberOfUserRattings[2]} people rated</span></h3>
+                            <div className='flex justify-evenly items-center'>
+                                {[1, 2, 3, 4, 5].map((value) => (
+                                    <span
+                                        key={value}
+                                        onClick={() => setSupportServices(value)}>
+                                        <IoStar size={25} color={`${value <= supportServicesDB ? 'crimson' : 'white'}`}></IoStar>
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className='mb-3'><Divider color='slategrey'></Divider></div>
+
+                        <div>
+                            <h3 style={{fontSize: '12px'}} className="flex justify-center text-white">How was the support after sales? <span className='text-slate-400 ml-1 hover:text-white'>{numberOfUserRattings[3]} people rated</span></h3>
+                            <div className='flex justify-evenly items-center'>
+                                {[1, 2, 3, 4, 5].map((value) => (
+                                    <span
+                                        key={value}
+                                        onClick={() => setAfterSales(value)}>
+                                        <IoStar size={25} color={`${value <= afterSalesDB ? 'crimson' : 'white'}`}></IoStar>
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className='mb-3'><Divider color='slategrey'></Divider></div>
+
+                        <div>
+                            <h3 style={{fontSize: '12px'}} className="flex justify-center text-white">Are you satiesfieds with miscellaneous support? <span className='text-slate-400 ml-1 hover:text-white'>{numberOfUserRattings[4]} people rated</span></h3>
+                            <div className='flex justify-evenly items-center'>
+                                {[1, 2, 3, 4, 5].map((value) => (
+                                    <span
+                                        key={value}
+                                        onClick={() => setMiscellaneous(value)}>
+                                        <IoStar size={25} color={`${value <= miscellaneousDB ? 'crimson' : 'white'}`}></IoStar>
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
                         </div>
                     </div>
                 </div>
 
 
                 {/* Description for computer..... */}
-                <div className='lg:flex justify-between hidden md:hidden my-[25px]'>
+                <div className='lg:block justify-between hidden md:hidden my-[25px]'>
                     <p style={{ whiteSpace: 'pre-line' }}>{individualProduct?.description}</p>
+
+                    <div>
+                        <h1 style={{ color: 'crimson' }} className='flex justify-center text-3xl my-4'>Rattings for this tool</h1>
+                        <div>
+                            <h3 className="flex justify-center text-white text-xl">How was the performance of this equipment? <span className='text-slate-400 ml-3 hover:text-white'>{numberOfUserRattings[0]} people rated</span></h3>
+                            <div className='flex justify-evenly items-center'>
+                                {[1, 2, 3, 4, 5].map((value) => (
+                                    <span
+                                        key={value}
+                                        onClick={() => setEquipmentPerformance(value)}>
+                                        <IoStar size={25} color={`${value <= equipmentPerformanceDB ? 'crimson' : 'white'}`}></IoStar>
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className='mb-3'><Divider color='slategrey'></Divider></div>
+
+                        <div>
+                            <h3 className="flex justify-center text-white text-xl">How was the customer service? <span className='text-slate-400 ml-3 hover:text-white'>{numberOfUserRattings[1]} people rated</span></h3>
+                            <div className='flex justify-evenly items-center'>
+                                {[1, 2, 3, 4, 5].map((value) => (
+                                    <span
+                                        key={value}
+                                        onClick={() => setCustomerService(value)}>
+                                        <IoStar size={25} color={`${value <= customerServiceDB ? 'crimson' : 'white'}`}></IoStar>
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className='mb-3'><Divider color='slategrey'></Divider></div>
+
+                        <div>
+                            <h3 className="flex justify-center text-white text-xl">Are you satiesfied with the support services? <span className='text-slate-400 ml-3 hover:text-white'>{numberOfUserRattings[2]} people rated</span></h3>
+                            <div className='flex justify-evenly items-center'>
+                                {[1, 2, 3, 4, 5].map((value) => (
+                                    <span
+                                        key={value}
+                                        onClick={() => setSupportServices(value)}>
+                                        <IoStar size={25} color={`${value <= supportServicesDB ? 'crimson' : 'white'}`}></IoStar>
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className='mb-3'><Divider color='slategrey'></Divider></div>
+
+                        <div>
+                            <h3 className="flex justify-center text-white text-xl">How was the support after sales? <span className='text-slate-400 ml-3 hover:text-white'>{numberOfUserRattings[3]} people rated</span></h3>
+                            <div className='flex justify-evenly items-center'>
+                                {[1, 2, 3, 4, 5].map((value) => (
+                                    <span
+                                        key={value}
+                                        onClick={() => setAfterSales(value)}>
+                                        <IoStar size={25} color={`${value <= afterSalesDB ? 'crimson' : 'white'}`}></IoStar>
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className='mb-3'><Divider color='slategrey'></Divider></div>
+
+                        <div>
+                            <h3 className="flex justify-center text-white text-xl">Are you satiesfieds with miscellaneous support? <span className='text-slate-400 ml-3 hover:text-white'>{numberOfUserRattings[4]} people rated</span></h3>
+                            <div className='flex justify-evenly items-center'>
+                                {[1, 2, 3, 4, 5].map((value) => (
+                                    <span
+                                        key={value}
+                                        onClick={() => setMiscellaneous(value)}>
+                                        <IoStar size={25} color={`${value <= miscellaneousDB ? 'crimson' : 'white'}`}></IoStar>
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -476,7 +653,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
 
 
             {
-                individualProduct?.comments ? <div className='mb-8'>
+                individualProduct?.comments?.length > 0 ? <div className='mb-8'>
                     <CommentsAndReviews individualProduct={individualProduct} setIndividualProduct={setIndividualProduct}></CommentsAndReviews>
                 </div> : <p className='mt-2 flex justify-center'>Be the first one to comment</p>
             }
@@ -485,18 +662,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
 
             {/* The modal for taking comment and stars of the mentioned field */}
             {
-                !isLoggedIn ? <dialog id="loginModal" className="modal">
-                    <div style={{
-                        color: 'white',
-                        background: 'black',
-                        border: '2px solid crimson'
-                    }} className="modal-box">
-                        <SheltonLogin setIsLoggedIn={setIsLoggedIn}></SheltonLogin>
-                    </div>
-                    <form method="dialog" className="modal-backdrop">
-                        <button>close</button>
-                    </form>
-                </dialog> : <dialog id="readyToCommentModal" className="modal">
+                (isLoggedIn || authenticatedUser) ? <dialog id="readyToCommentModal" className="modal">
                     <div className={`${IndividualCSS.toCommentModal} modal-box`}>
 
                         <span onClick={HandlePostingCommentOnTool} style={{ zIndex: '1' }} className={`${IndividualCSS.postingComment} w-[165px]`}><span className='flex justify-center'>Post</span></span>
@@ -510,7 +676,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                                         borderRadius: verificationFieldsRound,
                                         background: 'white',
                                     }}
-                                    placeholder={`Hi ${authenticatedUser.name} Please type your comment here`}
+                                    placeholder={`Hi ${authenticatedUser.name || isLoggedIn.name} Please type your comment here`}
                                     className={`w-full h-[55px] focus:outline-none border-0 pl-1 text-black`}
                                     type="text"
                                     name=""
@@ -522,7 +688,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                         <div className='mb-3'><Divider color='crimson'></Divider></div>
 
                         <div>
-                            <h3 className="flex justify-center text-white text-xl">How was the performance if this equipment?</h3>
+                            <h3 className="flex justify-center text-white text-xl">How was the performance of this equipment?</h3>
                             <div className='flex justify-evenly items-center'>
                                 {[1, 2, 3, 4, 5].map((value) => (
                                     <span
@@ -598,6 +764,17 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                     <form method="dialog" className="modal-backdrop">
                         <button>close</button>
                     </form>
+                </dialog> : <dialog id="loginModal" className="modal">
+                    <div style={{
+                        color: 'white',
+                        background: 'black',
+                        border: '2px solid crimson'
+                    }} className="modal-box">
+                        <SheltonLogin setIsLoggedIn={setIsLoggedIn}></SheltonLogin>
+                    </div>
+                    <form method="dialog" className="modal-backdrop">
+                        <button>close</button>
+                    </form>
                 </dialog>
             }
 
@@ -620,8 +797,12 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                             </div>
 
                             <div onClick={handleDeleteProductByAdmin} className={`${IndividualCSS.theButton}`}>
-                                <button className={`btn border-0 btn-sm w-[150px] normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Delete Tool</button>
+                                {
+                                    <button className={`btn border-0 btn-sm w-[150px] normal-case ${DashboardCSS.IndividualProductBuyNowButton}`}>Delete Tool</button>
+                                }
+
                             </div>
+
                         </div>
 
                     </div>
@@ -641,7 +822,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                     border: '2px solid crimson'
                 }} className="modal-box">
                     Your hiring request is receieved. Please wait for the confirmation! <br></br>
-                    Thank you so fuch for being with <span  className='underline'>Shelton-tool</span>
+                    Thank you so fuch for being with <span className='underline'>Shelton-tool</span>
 
                     <p onClick={() => router.push('/user-order')} className='flex items-center gap-x-3 text-slate-300 hover:text-white hover:cursor-pointer mt-3 justify-center'>Go to Dashboard</p>
                 </div>

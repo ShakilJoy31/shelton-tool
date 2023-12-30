@@ -9,6 +9,7 @@ import { ImCross } from 'react-icons/im';
 
 import DashboardCSS from '../../style/Dashboard.module.css';
 import {
+  AuthenticUser,
   BlurForSafety,
   LoggedInUserStore,
 } from '../../userStore';
@@ -16,6 +17,7 @@ import {
 const CustomerSidebar = ({ drawer }) => {
     const { isModalOpen, setIsModalOpen } = BlurForSafety.useContainer();
     const { isLoggedIn, setIsLoggedIn } = LoggedInUserStore.useContainer();
+    const { authenticatedUser, setAuthenticatedUser } = AuthenticUser.useContainer();
     const router = useRouter();
     const pathname = usePathname();
     const [isBackgroundActive, setIsBackgroundActive] = useState(false);
@@ -48,10 +50,19 @@ const CustomerSidebar = ({ drawer }) => {
                 <div className={`${DashboardCSS.content}`} style={{ overflowY: 'scroll', height: '90vh' }}>
 
                     {
-                        isLoggedIn &&  <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay">
+                        (isLoggedIn) &&  <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay">
                         <div style={{ paddingTop: '4px', paddingBottom: '4px', paddingLeft: '16px' }} onClick={() => router.push('/user-order')}
                             className={`flex items-center gap-x-4 mx-[24px] ${DashboardCSS.sidebarHeading} ${pathname === '/products/building-construction-equipment' ? DashboardCSS.sidebarHeadingSelected : ''}`}>
                             <p  className='flex items-center gap-x-3 text-slate-300 hover:text-white hover:cursor-pointer justify-center'>Go to Dashboard</p>
+                        </div>
+                    </label>
+                    }
+
+                    {
+                        (authenticatedUser) &&  <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay">
+                        <div style={{ paddingTop: '4px', paddingBottom: '4px', paddingLeft: '16px' }} onClick={() => router.push('/admin/user-order')}
+                            className={`flex items-center gap-x-4 mx-[24px] ${DashboardCSS.sidebarHeading} ${pathname === '/products/building-construction-equipment' ? DashboardCSS.sidebarHeadingSelected : ''}`}>
+                            <p  className='flex items-center gap-x-3 text-slate-300 hover:text-white hover:cursor-pointer justify-center'>Go to Admin Dashboard</p>
                         </div>
                     </label>
                     }
