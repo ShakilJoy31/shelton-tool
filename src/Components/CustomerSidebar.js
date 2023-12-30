@@ -35,7 +35,6 @@ const CustomerSidebar = ({ drawer }) => {
 
                     <div className='flex items-center gap-x-2'>
                         <p onClick={handleHomeImage} className={`${DashboardCSS.sheltonTools} hover:cursor-pointer`}><span>Shelton Tools</span></p> 
-                        
                     </div>
 
                     <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay">
@@ -47,6 +46,17 @@ const CustomerSidebar = ({ drawer }) => {
                 </div>
 
                 <div className={`${DashboardCSS.content}`} style={{ overflowY: 'scroll', height: '90vh' }}>
+
+                    {
+                        isLoggedIn &&  <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay">
+                        <div style={{ paddingTop: '4px', paddingBottom: '4px', paddingLeft: '16px' }} onClick={() => router.push('/user-order')}
+                            className={`flex items-center gap-x-4 mx-[24px] ${DashboardCSS.sidebarHeading} ${pathname === '/products/building-construction-equipment' ? DashboardCSS.sidebarHeadingSelected : ''}`}>
+                            <p  className='flex items-center gap-x-3 text-slate-300 hover:text-white hover:cursor-pointer justify-center'>Go to Dashboard</p>
+                        </div>
+                    </label>
+                    }
+                   
+
 
                     <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay">
                         <div style={{ paddingTop: '4px', paddingBottom: '4px', paddingLeft: '16px' }} onClick={() => router.push('/products/building-construction-equipment')}
