@@ -50,11 +50,11 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
         setPreviewImage(individualProduct?.productPicture[0]);
         const userRatting = individualProduct?.comments?.map(comment => comment?.commentAndRating?.avarageRating);
         const rattings = individualProduct?.comments?.map(comment => comment?.commentAndRating);
-        const equipmentRatting = rattings.map(getValue => getValue.equipmentPerformance);
-        const customerServiceRatting = rattings.map(getValue => getValue.customerService);
-        const supportServicesRatting = rattings.map(getValue => getValue.supportServices);
-        const afterSalesRatting = rattings.map(getValue => getValue.afterSales);
-        const miscellaneousRatting = rattings.map(getValue => getValue.miscellaneous);
+        const equipmentRatting = rattings?.map(getValue => getValue.equipmentPerformance);
+        const customerServiceRatting = rattings?.map(getValue => getValue.customerService);
+        const supportServicesRatting = rattings?.map(getValue => getValue.supportServices);
+        const afterSalesRatting = rattings?.map(getValue => getValue.afterSales);
+        const miscellaneousRatting = rattings?.map(getValue => getValue.miscellaneous);
 
         setEquipmentPerformanceDB(Math.round(equipmentRatting?.reduce((accumulator, currentValue) => {
             if (typeof currentValue === 'number') {
@@ -91,9 +91,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
             return accumulator;
         }, 0) / (userRatting?.length)))
 
-        console.log(equipmentRatting.filter(ratting => ratting > 0)?.length);
-
-        setNumberOfUserRattings([equipmentRatting.filter(ratting => ratting > 0)?.length, customerServiceRatting.filter(ratting => ratting > 0)?.length, supportServicesRatting.filter(ratting => ratting > 0)?.length, afterSalesRatting.filter(ratting => ratting > 0)?.length, miscellaneousRatting.filter(ratting => ratting > 0)?.length])
+        setNumberOfUserRattings([equipmentRatting?.filter(ratting => ratting > 0)?.length, customerServiceRatting?.filter(ratting => ratting > 0)?.length, supportServicesRatting?.filter(ratting => ratting > 0)?.length, afterSalesRatting?.filter(ratting => ratting > 0)?.length, miscellaneousRatting?.filter(ratting => ratting > 0)?.length])
     }, [individualProduct])
 
     setTimeout(function () {
