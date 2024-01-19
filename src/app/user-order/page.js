@@ -9,15 +9,15 @@ import { useRouter } from 'next/navigation';
 import { AdminAPI } from '@/APIcalling/adminAPI';
 
 import AdminCSS from '../../../style/AdminCSS.module.css';
-import { AuthenticUser } from '../../../userStore';
+import { LoggedInUserStore } from '../../../userStore';
 
 const Page = () => {
-    const { authenticatedUser, setAuthenticatedUser } = AuthenticUser.useContainer();
+    const { isLoggedIn, setIsLoggedIn } = LoggedInUserStore.useContainer();
     const router = useRouter();
     const [orders, setOrders] = useState([]);
     useEffect(() => {
         AdminAPI.handleGettingOrders().then(res => {
-            const onlyArrivedOrders  = res.filter(order => order?.email === authenticatedUser?.email);
+            const onlyArrivedOrders  = res.filter(order => order?.email === isLoggedIn?.email);
             setOrders(onlyArrivedOrders)
         });
     }, [])

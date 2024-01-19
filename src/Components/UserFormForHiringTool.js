@@ -6,8 +6,15 @@ import { useRouter } from 'next/navigation';
 import { verificationFieldsRound } from '@/constants/speceing';
 
 import MyServiceCSS from '../../style/Dashboard.module.css';
+import {
+  AuthenticUser,
+  LoggedInUserStore,
+} from '../../userStore';
 
-const Page = ({setPhoneNumber, setAddress, authenticatedUser, address, phoneNumber}) => {
+const Page = ({setPhoneNumber, setAddress, address, phoneNumber}) => {
+    const { isLoggedIn, setIsLoggedIn } = LoggedInUserStore.useContainer();
+    const { authenticatedUser, setAuthenticatedUser } = AuthenticUser.useContainer();
+
     const router = useRouter();
     return (
         <div>
@@ -22,7 +29,7 @@ const Page = ({setPhoneNumber, setAddress, authenticatedUser, address, phoneNumb
                                     borderRadius: verificationFieldsRound,
                                     background: 'white',
                                 }}
-                                placeholder={`${authenticatedUser?.name}, type your phone number`}
+                                placeholder={`${authenticatedUser?.name || isLoggedIn.name}, type your phone number`}
                                 className="lg:w-[450px] w-full h-[45px] focus:outline-none border-0 pl-1 text-black"
                                 type="text"
                                 name=""
@@ -39,7 +46,7 @@ const Page = ({setPhoneNumber, setAddress, authenticatedUser, address, phoneNumb
                                     borderRadius: verificationFieldsRound,
                                     background: 'white',
                                 }}
-                                placeholder={`${authenticatedUser?.name}, to delever your hiring we need your address. Please type it here before procceed.`}
+                                placeholder={`${authenticatedUser?.name || isLoggedIn.name}, to delever your hiring we need your address. Please type it here before procceed.`}
                                 className={`w-full h-[90px] focus:outline-none border-0 pl-1 text-black`}
                                 type="text"
                                 name=""

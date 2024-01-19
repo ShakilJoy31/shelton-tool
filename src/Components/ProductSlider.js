@@ -226,8 +226,8 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
             let userDataForOrderTool = {}
             if (hiringHour) {
                 userDataForOrderTool = {
-                    name: authenticatedUser.name,
-                    email: authenticatedUser.email,
+                                name: authenticatedUser.name || isLoggedIn.name,
+                    email: authenticatedUser.email || isLoggedIn.email,
                     phoneNumber: phoneNumber,
                     address: address,
                     orderedTool: individualProduct,
@@ -237,8 +237,8 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                 }
             } else if (hiringDay) {
                 userDataForOrderTool = {
-                    name: authenticatedUser.name,
-                    email: authenticatedUser.email,
+                                name: authenticatedUser.name || isLoggedIn.name,
+                    email: authenticatedUser.email || isLoggedIn.email,
                     phoneNumber: phoneNumber,
                     address: address,
                     orderedTool: individualProduct,
@@ -248,8 +248,8 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                 }
             } else {
                 userDataForOrderTool = {
-                    name: authenticatedUser.name,
-                    email: authenticatedUser.email,
+                                name: authenticatedUser.name || isLoggedIn.name,
+                    email: authenticatedUser.email || isLoggedIn.email,
                     phoneNumber: phoneNumber,
                     address: address,
                     orderedTool: individualProduct,
@@ -820,7 +820,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                     border: '2px solid crimson'
                 }} className="modal-box">
                     Your hiring request is receieved. Please wait for the confirmation! <br></br>
-                    Thank you so fuch for being with <span className='underline'>Shelton-tool</span>
+                    Thank you so much for being with <span className='underline'>Shelton-tool</span>
 
                     <p onClick={() => router.push('/user-order')} className='flex items-center gap-x-3 text-slate-300 hover:text-white hover:cursor-pointer mt-3 justify-center'>Go to Dashboard</p>
                 </div>
@@ -838,7 +838,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                     background: 'black',
                     border: '2px solid crimson'
                 }} className="modal-box">
-                    <UserFormForHiringTool setPhoneNumber={setPhoneNumber} setAddress={setAddress} authenticatedUser={authenticatedUser} phoneNumber={phoneNumber} address={address}></UserFormForHiringTool>
+                    <UserFormForHiringTool setPhoneNumber={setPhoneNumber} setAddress={setAddress} phoneNumber={phoneNumber} address={address}></UserFormForHiringTool>
                 </div>
                 <form method="dialog" className="modal-backdrop">
                     <button>close</button>
