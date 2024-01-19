@@ -99,7 +99,7 @@ const Page = () => {
 
                                         <td className=''><span className='flex justify-center'>{order.email}</span></td>
 
-                                        <td className=''><span className='flex justify-center'>{order.phone}</span></td>
+                                        <td className=''><span className='flex justify-center'>{order.phoneNumber}</span></td>
 
                                         <td className=''><span className='flex justify-center'>{order.address}</span></td>
 
