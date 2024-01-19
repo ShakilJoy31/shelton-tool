@@ -226,7 +226,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
             let userDataForOrderTool = {}
             if (hiringHour) {
                 userDataForOrderTool = {
-                                name: authenticatedUser.name || isLoggedIn.name,
+                    name: authenticatedUser.name || isLoggedIn.name,
                     email: authenticatedUser.email || isLoggedIn.email,
                     phoneNumber: phoneNumber,
                     address: address,
@@ -237,7 +237,7 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                 }
             } else if (hiringDay) {
                 userDataForOrderTool = {
-                                name: authenticatedUser.name || isLoggedIn.name,
+                    name: authenticatedUser.name || isLoggedIn.name,
                     email: authenticatedUser.email || isLoggedIn.email,
                     phoneNumber: phoneNumber,
                     address: address,
@@ -248,13 +248,13 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                 }
             } else {
                 userDataForOrderTool = {
-                                name: authenticatedUser.name || isLoggedIn.name,
+                    name: authenticatedUser.name || isLoggedIn.name,
                     email: authenticatedUser.email || isLoggedIn.email,
                     phoneNumber: phoneNumber,
                     address: address,
                     orderedTool: individualProduct,
                     hiringCost: totalHiringCost,
-                    hiringDuration: hiringCustom,
+                    hiringDuration: hiringCustom + ' Day',
                     hiringTime: getCurrentDateTime(),
                 }
             }
@@ -469,80 +469,80 @@ const ProductSlider = ({ individualProduct, setIndividualProduct, clickedFor }) 
                             <p style={{ whiteSpace: 'pre-line' }}>{individualProduct?.description}</p>
 
                             <div>
-                        <h1 style={{ color: 'crimson' }} className='flex justify-center text-2xl my-4'>Rattings for this tool</h1>
-                        <div>
-                            <h3 style={{fontSize: '12px'}} className="flex justify-center text-white">How was the performance of this equipment? <span className='text-slate-400 ml-1 hover:text-white'>{numberOfUserRattings[0]} people rated</span></h3>
-                            <div className='flex justify-evenly items-center'>
-                                {[1, 2, 3, 4, 5].map((value) => (
-                                    <span
-                                        key={value}
-                                        onClick={() => setEquipmentPerformance(value)}>
-                                        <IoStar size={25} color={`${value <= equipmentPerformanceDB ? 'crimson' : 'white'}`}></IoStar>
-                                    </span>
-                                ))}
+                                <h1 style={{ color: 'crimson' }} className='flex justify-center text-2xl my-4'>Rattings for this tool</h1>
+                                <div>
+                                    <h3 style={{ fontSize: '12px' }} className="flex justify-center text-white">How was the performance of this equipment? <span className='text-slate-400 ml-1 hover:text-white'>{numberOfUserRattings[0]} people rated</span></h3>
+                                    <div className='flex justify-evenly items-center'>
+                                        {[1, 2, 3, 4, 5].map((value) => (
+                                            <span
+                                                key={value}
+                                                onClick={() => setEquipmentPerformance(value)}>
+                                                <IoStar size={25} color={`${value <= equipmentPerformanceDB ? 'crimson' : 'white'}`}></IoStar>
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className='mb-3'><Divider color='slategrey'></Divider></div>
+
+                                <div>
+                                    <h3 style={{ fontSize: '12px' }} className="flex justify-center text-white">How was the customer service? <span className='text-slate-400 ml-1 hover:text-white'>{numberOfUserRattings[1]} people rated</span></h3>
+                                    <div className='flex justify-evenly items-center'>
+                                        {[1, 2, 3, 4, 5].map((value) => (
+                                            <span
+                                                key={value}
+                                                onClick={() => setCustomerService(value)}>
+                                                <IoStar size={25} color={`${value <= customerServiceDB ? 'crimson' : 'white'}`}></IoStar>
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className='mb-3'><Divider color='slategrey'></Divider></div>
+
+                                <div>
+                                    <h3 style={{ fontSize: '12px' }} className="flex justify-center text-white">Are you satiesfied with the support services? <span className='text-slate-400 ml-1 hover:text-white'>{numberOfUserRattings[2]} people rated</span></h3>
+                                    <div className='flex justify-evenly items-center'>
+                                        {[1, 2, 3, 4, 5].map((value) => (
+                                            <span
+                                                key={value}
+                                                onClick={() => setSupportServices(value)}>
+                                                <IoStar size={25} color={`${value <= supportServicesDB ? 'crimson' : 'white'}`}></IoStar>
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className='mb-3'><Divider color='slategrey'></Divider></div>
+
+                                <div>
+                                    <h3 style={{ fontSize: '12px' }} className="flex justify-center text-white">How was the support after sales? <span className='text-slate-400 ml-1 hover:text-white'>{numberOfUserRattings[3]} people rated</span></h3>
+                                    <div className='flex justify-evenly items-center'>
+                                        {[1, 2, 3, 4, 5].map((value) => (
+                                            <span
+                                                key={value}
+                                                onClick={() => setAfterSales(value)}>
+                                                <IoStar size={25} color={`${value <= afterSalesDB ? 'crimson' : 'white'}`}></IoStar>
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className='mb-3'><Divider color='slategrey'></Divider></div>
+
+                                <div>
+                                    <h3 style={{ fontSize: '12px' }} className="flex justify-center text-white">Are you satiesfieds with miscellaneous support? <span className='text-slate-400 ml-1 hover:text-white'>{numberOfUserRattings[4]} people rated</span></h3>
+                                    <div className='flex justify-evenly items-center'>
+                                        {[1, 2, 3, 4, 5].map((value) => (
+                                            <span
+                                                key={value}
+                                                onClick={() => setMiscellaneous(value)}>
+                                                <IoStar size={25} color={`${value <= miscellaneousDB ? 'crimson' : 'white'}`}></IoStar>
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-
-                        <div className='mb-3'><Divider color='slategrey'></Divider></div>
-
-                        <div>
-                            <h3 style={{fontSize: '12px'}} className="flex justify-center text-white">How was the customer service? <span className='text-slate-400 ml-1 hover:text-white'>{numberOfUserRattings[1]} people rated</span></h3>
-                            <div className='flex justify-evenly items-center'>
-                                {[1, 2, 3, 4, 5].map((value) => (
-                                    <span
-                                        key={value}
-                                        onClick={() => setCustomerService(value)}>
-                                        <IoStar size={25} color={`${value <= customerServiceDB ? 'crimson' : 'white'}`}></IoStar>
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className='mb-3'><Divider color='slategrey'></Divider></div>
-
-                        <div>
-                            <h3 style={{fontSize: '12px'}} className="flex justify-center text-white">Are you satiesfied with the support services? <span className='text-slate-400 ml-1 hover:text-white'>{numberOfUserRattings[2]} people rated</span></h3>
-                            <div className='flex justify-evenly items-center'>
-                                {[1, 2, 3, 4, 5].map((value) => (
-                                    <span
-                                        key={value}
-                                        onClick={() => setSupportServices(value)}>
-                                        <IoStar size={25} color={`${value <= supportServicesDB ? 'crimson' : 'white'}`}></IoStar>
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className='mb-3'><Divider color='slategrey'></Divider></div>
-
-                        <div>
-                            <h3 style={{fontSize: '12px'}} className="flex justify-center text-white">How was the support after sales? <span className='text-slate-400 ml-1 hover:text-white'>{numberOfUserRattings[3]} people rated</span></h3>
-                            <div className='flex justify-evenly items-center'>
-                                {[1, 2, 3, 4, 5].map((value) => (
-                                    <span
-                                        key={value}
-                                        onClick={() => setAfterSales(value)}>
-                                        <IoStar size={25} color={`${value <= afterSalesDB ? 'crimson' : 'white'}`}></IoStar>
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className='mb-3'><Divider color='slategrey'></Divider></div>
-
-                        <div>
-                            <h3 style={{fontSize: '12px'}} className="flex justify-center text-white">Are you satiesfieds with miscellaneous support? <span className='text-slate-400 ml-1 hover:text-white'>{numberOfUserRattings[4]} people rated</span></h3>
-                            <div className='flex justify-evenly items-center'>
-                                {[1, 2, 3, 4, 5].map((value) => (
-                                    <span
-                                        key={value}
-                                        onClick={() => setMiscellaneous(value)}>
-                                        <IoStar size={25} color={`${value <= miscellaneousDB ? 'crimson' : 'white'}`}></IoStar>
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
                         </div>
                     </div>
                 </div>
