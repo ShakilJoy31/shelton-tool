@@ -12,7 +12,7 @@ import {
 } from '../../userStore';
 
 const Page = ({setPhoneNumber, setAddress, address, phoneNumber}) => {
-    const { isLoggedIn, setIsLoggedIn } = LoggedInUserStore.useContainer();
+    const { isLoggedIn, setIsLoggedIn } = LoggedInUserStore.useContainer(); 
     const { authenticatedUser, setAuthenticatedUser } = AuthenticUser.useContainer();
 
     const router = useRouter();
