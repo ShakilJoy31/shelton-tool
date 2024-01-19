@@ -93,7 +93,7 @@ const Page = () => {
                             <tbody>
                                 {
                                     orders?.map((order, index) => <tr onClick={() => handleCheckOrderByAdmin(order)} key={index} className={`${AdminCSS.orderRow}`}>
-                                        <th><span className='flex justify-center'>{index + 1}</span></th>
+                                        <th><span className='flex justify-center'>{index + 1}</span></th> 
 
                                         <td> <span className='flex justify-center'>{order.name}</span></td>
 
