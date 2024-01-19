@@ -28,7 +28,6 @@ const CustomerSidebar = ({ drawer }) => {
             setIsBackgroundActive(false);
         }, 3000);
     };
-
     return (
         <div style={{ background: 'black', filter: `${(isModalOpen && (pathname === '/admin' || pathname === '/admin/user-order')) ? 'blur(3px)' : ''}` }} className={`h-full w-[300px] md:w-[310px] lg:w-[320px]`}>
             <div style={{ overflow: 'hidden' }} className={`h-full text-white ${DashboardCSS.customerSidebar} ${DashboardCSS.sidebarBackground}`}>
@@ -59,7 +58,7 @@ const CustomerSidebar = ({ drawer }) => {
                     }
 
                     {
-                        (authenticatedUser) ?  <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay">
+                    (authenticatedUser) ?  <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay">
                         <div style={{ paddingTop: '4px', paddingBottom: '4px', paddingLeft: '16px' }} onClick={() => router.push('/admin/user-order')}
                             className={`flex items-center gap-x-4 mx-[24px] ${DashboardCSS.sidebarHeading} ${pathname === '/products/building-construction-equipment' ? DashboardCSS.sidebarHeadingSelected : ''}`}>
                             <p  className='flex items-center gap-x-3 text-slate-300 hover:text-white hover:cursor-pointer justify-center'>Go to Admin Dashboard</p>

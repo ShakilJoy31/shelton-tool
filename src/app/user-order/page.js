@@ -7,26 +7,12 @@ import React, {
 import { useRouter } from 'next/navigation';
 
 import { AdminAPI } from '@/APIcalling/adminAPI';
-import CustomModal from '@/Components/CustomModal';
 
 import AdminCSS from '../../../style/AdminCSS.module.css';
-import HomeComponentCss from '../../../style/ComponentStyle.module.css';
-import {
-  AuthenticUser,
-  BlurForSafety,
-} from '../../../userStore';
+import { AuthenticUser } from '../../../userStore';
 
 const Page = () => {
-    const { isModalOpen, setIsModalOpen } = BlurForSafety.useContainer();
     const { authenticatedUser, setAuthenticatedUser } = AuthenticUser.useContainer();
-    useEffect(()=>{
-        if (JSON.parse(localStorage.getItem('user'))) {
-            setAuthenticatedUser(JSON.parse(localStorage.getItem('user')));
-        }
-    },[])
-    const closeModal = () => {
-        setIsModalOpen(false);
-    };
     const router = useRouter();
     const [orders, setOrders] = useState([]);
     useEffect(() => {
@@ -140,17 +126,8 @@ const Page = () => {
                     <button>close</button>
                 </form>
             </dialog>
-
-            {
-                isModalOpen && <div className={`${HomeComponentCss.modalContaine}`}><CustomModal closeModal={closeModal} /></div>
-            }
         </div>
     );
 };
 
 export default Page;
-
-
-
-
-// The onchange.  
